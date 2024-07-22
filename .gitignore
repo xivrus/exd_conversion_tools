@@ -1,0 +1,10 @@
+cache
+changelogs
+dump
+game_files
+logs
+strings
+config.cfg
+weblate.cfg
+tools/tomestone-dump
+tools/migration

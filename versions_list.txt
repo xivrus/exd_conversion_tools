@@ -1,0 +1,10 @@
+# This file contains pairs of game and "human-recognizable" versions.
+# It's used only in Update-GameData to name changelog folders.
+# It's NOT used to name folders in dump folder.
+
+# Forgot what hotfix is it but definitely not the latest
+2024.03.27.0000.0000=6.58
+
+2024.06.18.0000.0000=7.0
+2024.07.06.0000.0000=7.0-hotfix1
+2024.07.10.0001.0000=7.01
