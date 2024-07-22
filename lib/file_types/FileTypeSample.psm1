@@ -7,6 +7,8 @@
 #   2. Write code for functions below
 #   3. For conversion scripts use file name as a -FileType argument
 
+# This module contains global variables - we'll need STRING_STATE ones
+Import-Module -Name "./lib/Engine.psm1" -ErrorAction Stop
 
 # Must assemble and return expected path for the strings file
 # of a specified language

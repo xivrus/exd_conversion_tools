@@ -1,3 +1,5 @@
+Import-Module -Name "./lib/Engine.psm1" -ErrorAction Stop
+
 function Get-TargetPath {
     [CmdletBinding()]
     param (
