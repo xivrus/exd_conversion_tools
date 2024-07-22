@@ -8,3 +8,4 @@ config.cfg
 weblate.cfg
 tools/tomestone-dump
 tools/migration
+.DS_Store
