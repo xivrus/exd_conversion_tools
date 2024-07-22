@@ -50,18 +50,30 @@ function Export-Strings {
     #         state="needs-translation"
     #     * Having neither of those while <target> exists means "Waiting for review"
 
-    $xliff = [xml]::new()
-    if ($Compress) {
-        $xliff.PreserveWhitespace = $true
-    }
-    $template = Get-Content -Path './lib/file_types/XLIFFMonolingual/template.xlf' `
-        -Raw -ReadCount 0 -ErrorAction Stop
-    $xliff.LoadXml($template)
+    $target_path = Get-TargetPath -Path $Destination -Language $TargetLanguage
+    $file_name = $Destination.BaseName
 
-    $xliff.xliff.file.original = $Destination.BaseName
-    $xliff.xliff.file.'target-language' = $TargetLanguage
+    $xml_settings = [System.Xml.XmlWriterSettings]::new()
+    $xml_settings.Indent = $true
+    $xml_settings.IndentChars = "`t"
 
-    foreach ( $row in $Table.GetEnumerator() ) {
+    $xliff = [System.Xml.XmlWriter]::Create($target_path, $xml_settings)
+
+    $xliff.WriteStartDocument()
+    $xliff.WriteStartElement('xliff')
+    $xliff.WriteAttributeString('version', '1.2')
+
+    $xliff.WriteStartElement('file')
+    $xliff.WriteAttributeString('original', $file_name)
+    $xliff.WriteAttributeString('datatype', 'plaintext')
+    $xliff.WriteAttributeString('source-language', 'en')
+    $xliff.WriteAttributeString('target-language', $TargetLanguage)
+
+    $xliff.WriteStartElement('body')
+
+    foreach ($row in $Table.GetEnumerator()) {
+        $index = $row.Key
+        $string = $row.Value.String
         switch ($row.Value.State) {
             $STRING_STATE_NOT_TRANSLATED {
                 if ($row.Value.String -eq '') {
@@ -90,50 +102,30 @@ function Export-Strings {
             }
         }
 
-        $trans_unit = $xliff.CreateElement('trans-unit')
-
-        $trans_unit_id = $xliff.CreateAttribute('id')
-        $trans_unit_id.InnerText = $row.Key
-
+        $xliff.WriteStartElement('trans-unit')
+        $xliff.WriteAttributeString('id', $index)
         if ($approved) {
-            $trans_unit_approved = $xliff.CreateAttribute('approved')
-            $trans_unit_approved.InnerText = $approved
+            $xliff.WriteAttributeString('approved', $approved)
         }
 
-        $trans_unit_source = $xliff.CreateElement('source')
-        $trans_unit_source_text = $xliff.CreateTextNode( $row.Key )
-        $null = $trans_unit_source.AppendChild( $trans_unit_source_text )
+        $xliff.WriteStartElement('source')
+        $xliff.WriteString($index)
+        $xliff.WriteEndElement() # source
 
-        $trans_unit_target = $xliff.CreateElement('target')
+        $xliff.WriteStartElement('target')
         if ($state) {
-            $trans_unit_target_state = $xliff.CreateAttribute('state')
-            $trans_unit_target_state.InnerText = $state
-
-            $null = $trans_unit_target.Attributes.Append($trans_unit_target_state)
+            $xliff.WriteAttributeString('state', $state)
         }
-        $trans_unit_target_text = $xliff.CreateTextNode( $row.Value.String )
-        $null = $trans_unit_target.AppendChild( $trans_unit_target_text )
+        $xliff.WriteAttributeString('xml', 'space', $null, 'preserve')
+        $xliff.WriteString($string)
+        $xliff.WriteEndElement() # target
 
-        $null = $trans_unit.Attributes.Append($trans_unit_id)
-        if ($approved) {
-            $null = $trans_unit.Attributes.Append($trans_unit_approved)
-        }
-        $null = $trans_unit.AppendChild( $trans_unit_source )
-        $null = $trans_unit.AppendChild( $trans_unit_target )
-
-        $null = $xliff.xliff.file.body.AppendChild( $trans_unit )
+        $xliff.WriteEndElement() # trans-unit
     }
 
-    $element_to_remove = $xliff.SelectSingleNode('xliff/file/body/remove')
-    $null = $xliff.xliff.file.body.RemoveChild($element_to_remove)
+    $xliff.WriteEndDocument()
+    $xliff.Close()
 
-    $target_path = Get-TargetPath -Path $Destination -Language $TargetLanguage
-    try {
-        $xliff.Save($target_path)
-    }
-    catch {
-        return 1
-    }
     return 0
 }
 
@@ -149,12 +141,12 @@ function Import-Strings {
     $result = [System.Collections.Generic.SortedDictionary[int,pscustomobject]]::new()
     foreach ($unit in $input_file.xliff.file.body.'trans-unit') {
         $string = $unit.target.GetType() -eq [string] ? $unit.target : $unit.target.'#text'
-        if ($unit.approved -eq 'yes') {
+        $state = $STRING_STATE_NOT_TRANSLATED
+
+        if ($unit.HasAttribute('approved') -and $unit.approved -eq 'yes') {
             $state = $STRING_STATE_APPROVED
         } elseif ($unit.target.state -eq 'translated') {
             $state = $STRING_STATE_TRANSLATED
-        } else {
-            $state = $STRING_STATE_NOT_TRANSLATED
         }
 
         $result.Add(
