@@ -55,11 +55,13 @@ function Export-Strings {
 
     $xml_settings = [System.Xml.XmlWriterSettings]::new()
     $xml_settings.Indent = $true
-    $xml_settings.IndentChars = "`t"
 
     $xliff = [System.Xml.XmlWriter]::Create($target_path, $xml_settings)
 
-    $xliff.WriteStartDocument()
+    # Normal WriteStartDocument() makes lower-case 'utf-8'. Apparently,
+    # Weblate doesn't like and it corrects it to an uppercase one, generating
+    # a shit ton of commits, so we're putting in uppercase 'UTF-8' manually.
+    $xliff.WriteProcessingInstruction('xml', 'version="1.0" encoding="UTF-8"');
     $xliff.WriteStartElement('xliff')
     $xliff.WriteAttributeString('version', '1.2')
 
