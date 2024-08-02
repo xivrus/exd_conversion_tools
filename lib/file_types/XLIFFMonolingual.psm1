@@ -50,28 +50,33 @@ function Export-Strings {
     #         state="needs-translation"
     #     * Having neither of those while <target> exists means "Waiting for review"
 
+    if (-not (Test-Path -Path $Destination)) {
+        Write-Error "Destination does not exist - $Destination"
+        return 1
+    }
+
     $target_path = Get-TargetPath -Path $Destination -Language $TargetLanguage
     $file_name = $Destination.BaseName
 
-    $xml_settings = [System.Xml.XmlWriterSettings]::new()
-    $xml_settings.Indent = $true
+    $xml_writer_settings = [System.Xml.XmlWriterSettings]::new()
+    $xml_writer_settings.Indent = $true
 
-    $xliff = [System.Xml.XmlWriter]::Create($target_path, $xml_settings)
+    $xliff_writer = [System.Xml.XmlWriter]::Create($target_path, $xml_writer_settings)
 
     # Normal WriteStartDocument() makes lower-case 'utf-8'. Apparently,
     # Weblate doesn't like and it corrects it to an uppercase one, generating
     # a shit ton of commits, so we're putting in uppercase 'UTF-8' manually.
-    $xliff.WriteProcessingInstruction('xml', 'version="1.0" encoding="UTF-8"');
-    $xliff.WriteStartElement('xliff')
-    $xliff.WriteAttributeString('version', '1.2')
+    $xliff_writer.WriteProcessingInstruction('xml', 'version="1.0" encoding="UTF-8"');
+    $xliff_writer.WriteStartElement('xliff')
+    $xliff_writer.WriteAttributeString('version', '1.2')
 
-    $xliff.WriteStartElement('file')
-    $xliff.WriteAttributeString('original', $file_name)
-    $xliff.WriteAttributeString('datatype', 'plaintext')
-    $xliff.WriteAttributeString('source-language', 'en')
-    $xliff.WriteAttributeString('target-language', $TargetLanguage)
+    $xliff_writer.WriteStartElement('file')
+    $xliff_writer.WriteAttributeString('original', $file_name)
+    $xliff_writer.WriteAttributeString('datatype', 'plaintext')
+    $xliff_writer.WriteAttributeString('source-language', 'en')
+    $xliff_writer.WriteAttributeString('target-language', $TargetLanguage)
 
-    $xliff.WriteStartElement('body')
+    $xliff_writer.WriteStartElement('body')
 
     foreach ($row in $Table.GetEnumerator()) {
         $index = $row.Key
@@ -104,29 +109,29 @@ function Export-Strings {
             }
         }
 
-        $xliff.WriteStartElement('trans-unit')
-        $xliff.WriteAttributeString('id', $index)
+        $xliff_writer.WriteStartElement('trans-unit')
+        $xliff_writer.WriteAttributeString('id', $index)
         if ($approved) {
-            $xliff.WriteAttributeString('approved', $approved)
+            $xliff_writer.WriteAttributeString('approved', $approved)
         }
 
-        $xliff.WriteStartElement('source')
-        $xliff.WriteString($index)
-        $xliff.WriteEndElement() # source
+        $xliff_writer.WriteStartElement('source')
+        $xliff_writer.WriteString($index)
+        $xliff_writer.WriteEndElement() # source
 
-        $xliff.WriteStartElement('target')
+        $xliff_writer.WriteStartElement('target')
         if ($state) {
-            $xliff.WriteAttributeString('state', $state)
+            $xliff_writer.WriteAttributeString('state', $state)
         }
-        $xliff.WriteAttributeString('xml', 'space', $null, 'preserve')
-        $xliff.WriteString($string)
-        $xliff.WriteEndElement() # target
+        $xliff_writer.WriteAttributeString('xml', 'space', $null, 'preserve')
+        $xliff_writer.WriteString($string)
+        $xliff_writer.WriteEndElement() # target
 
-        $xliff.WriteEndElement() # trans-unit
+        $xliff_writer.WriteEndElement() # trans-unit
     }
 
-    $xliff.WriteEndDocument()
-    $xliff.Close()
+    $xliff_writer.WriteEndDocument()
+    $xliff_writer.Close()
 
     return 0
 }
@@ -138,21 +143,25 @@ function Import-Strings {
         $Path
     )
 
-    [xml] $input_file = Get-Content -Path $Path -Encoding utf8NoBOM
+    $xliff_reader = [System.Xml.XmlReader]::Create($Path)
 
-    $result = [System.Collections.Generic.SortedDictionary[int,pscustomobject]]::new()
-    foreach ($unit in $input_file.xliff.file.body.'trans-unit') {
-        $string = $unit.target.GetType() -eq [string] ? $unit.target : $unit.target.'#text'
+    $table = [System.Collections.Generic.SortedDictionary[int,pscustomobject]]::new()
+    while ($xliff_reader.ReadToFollowing('trans-unit')) {
+        $id = [int] $xliff_reader.GetAttribute('id')
         $state = $STRING_STATE_NOT_TRANSLATED
 
-        if ($unit.HasAttribute('approved') -and $unit.approved -eq 'yes') {
+        if ($xliff_reader.GetAttribute('approved') -eq 'yes') {
             $state = $STRING_STATE_APPROVED
-        } elseif ($unit.target.state -eq 'translated') {
-            $state = $STRING_STATE_TRANSLATED
         }
 
-        $result.Add(
-            [int] $unit.id,
+        $null = $xliff_reader.ReadToFollowing('target')
+        if ($xliff_reader.GetAttribute('state') -eq 'translated') {
+            $state = $STRING_STATE_TRANSLATED
+        }
+        $string = $xliff_reader.ReadElementContentAsString()
+
+        $table.Add(
+            $id,
             [PSCustomObject]@{
                 String = $string
                 State  = $state
@@ -160,5 +169,6 @@ function Import-Strings {
         )
     }
 
-    return $result
+    $xliff_reader.Close()
+    return $table
 }
