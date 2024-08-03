@@ -22,18 +22,18 @@ param (
     [Parameter(Mandatory)]
     [string]
     $FileType,
-    # Output language (Default: en)
+    # Output language (Default: MAIN_SOURCE_LANGUAGE from config.cfg)
     # Choose what official language to mod. EXD of specified language must exist.
     [Parameter()]
     [string]
-    $TargetLanguage = 'en',
+    $OutputLanguage,
     # Add string IDs at the start? (Default: No)
     # For debugging or string identifying purposes.
     # Notes:
     #  * This ID is decimal.
     #  * If the string has its ID at the start already, it won't be added again.
     #  * The script can recognize quest/cutscene strings (they start with TEXT_).
-    #    In this case the index would be added after <tab>.
+    #    In this case the index would be added after column separator.
     [Parameter()]
     [switch]
     $AddStringIDs = $false,
@@ -54,6 +54,7 @@ $ErrorActionPreference = 'Stop'
 
 Import-Module -Name "./lib/Engine.psm1"
 Import-Module -Name "./lib/file_types/$FileType.psm1"
+$CONFIG = Get-Content -Path "./config.cfg" | ConvertFrom-StringData
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff
@@ -61,9 +62,16 @@ $ErrorActionPreference = $ErrorActionPreference_before
 
 # MAIN START
 
-if (-not $(Test-Path -Path $StringsPath)) {
-    Write-Error "Not found - $StringsPath"
+try {
+    $strings_file = Get-Item -Path $StringsPath
+}
+catch {
+    Write-Error $_
     return 2
+}
+
+if (-not $OutputLanguage) {
+    $OutputLanguage = $CONFIG.MAIN_SOURCE_LANGUAGE
 }
 
 try {
@@ -74,14 +82,17 @@ catch {
     return 2
 }
 
-$table = Import-Strings -Path $StringsPath
+$StringsSourcePath = "{0}/{1}.{2}" -f $strings_file.Directory, $OutputLanguage, (Get-StringsFileExtension)
+
+$table_target = Import-Strings -Path $StringsPath
+$table_source = Import-Strings -Path $StringsSourcePath
 
 # Whenever error flag is set we stop writing strings into EXD
 # but continue going through the strings to catch and report more
 # potential errors.
 $error_flag = $false
 foreach ($page_number in [int[]] $exh.PageTable.Keys) {
-    $exd_source_path = $exh.GetEXDPath($page_number, $TargetLanguage)
+    $exd_source_path = $exh.GetEXDPath($page_number, $OutputLanguage)
     $exd_target_path = "{0}/{1}" -f $Destination, (Split-Path $exd_source_path -Leaf)
 
     if (-not $Overwrite -and $(Test-Path -Path $exd_target_path)) {
@@ -98,27 +109,31 @@ foreach ($page_number in [int[]] $exh.PageTable.Keys) {
         return 2
     }
 
+    $page_changed = $false
     foreach ($row in $exd.DataRowTable.GetEnumerator()) {
         $index = $row.Key
-        if ( $table[$index].Length -eq 0 ) {
-            continue
-        }
+        $string_target = $table_target[$index].String
+        $string_source = $table_source[$index].String
 
         if ($AddStringIDs) {
-            $string_id_text = "{0}_" -f $index
-            $quest_strings_regex = "^TEXT_[A-Z0-9_]+?<tab>{0}_" -f $index
-            $quest_strings_replace = "<tab>{0}_" -f $index
+            $string_id_text        = "{0}_" -f $index
+            $quest_strings_regex   = "^TEXT_[A-Z0-9_]+?{0}(?!{1})" -f $COLUMN_SEPARATOR, $string_id_text
+            $quest_strings_replace = "{0}{1}" -f $COLUMN_SEPARATOR, $string_id_text
 
-            if ($table[$index] -cmatch '^TEXT_[A-Z0-9_]+?<tab>' -and
-                $table[$index] -cnotmatch $quest_strings_regex) {
-                $table[$index] = $table[$index] -creplace '<tab>', $quest_strings_replace
-            } elseif (-not $table[$index].StartsWith($string_id_text)) {
-                $table[$index] = "{0}{1}" -f $string_id_text, $table[$index]
+            if ($string_target -cmatch $quest_strings_regex) {
+                $string_target = $string_target -creplace $COLUMN_SEPARATOR, $quest_strings_replace
+            } elseif (-not $string_target.StartsWith($string_id_text)) {
+                $string_target = "{0}{1}" -f $string_id_text, $string_target
             }
         }
 
+        if ( $string_target.Length -eq 0 -or $string_target -eq $string_source) {
+            continue
+        }
+        $page_changed = $true
+
         try {
-            $result_bytes = Convert-TagsToVariables $table[$index]
+            $result_bytes = Convert-TagsToVariables $string_target
         }
         catch {
             Write-Error "Syntax error at line $index - $StringsPath"
@@ -136,7 +151,11 @@ foreach ($page_number in [int[]] $exh.PageTable.Keys) {
         }
     }
 
-    if (-not $error_flag) {
+    if (-not $page_changed) {
+        Write-Verbose "No changes in page $page_number"
+    }
+
+    if (-not $error_flag -and $page_changed) {
         $_parent_target_folder = Split-Path -Path $exd_target_path -Parent
         $null = New-Item -Path $_parent_target_folder -ItemType Directory -ErrorAction Ignore
 
@@ -148,15 +167,6 @@ foreach ($page_number in [int[]] $exh.PageTable.Keys) {
             return 1
         }
         Write-Information "Converted - $exd_target_path" -InformationAction Continue
-
-        # Compare output EXD with source one; if they're the same,
-        # output EXD is not needed, delete it.
-        $hash1 = $(Get-FileHash -Path $exd_source_path).hash
-        $hash2 = $(Get-FileHash -Path $exd_target_path).hash
-        if ($hash1 -eq $hash2) {
-            Write-Information "Target EXD (p. $page_number) turned out the same, so it was deleted"
-            Remove-Item -Path $exd_target_path
-        }
     }
 }
 
