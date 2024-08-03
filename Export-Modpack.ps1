@@ -123,11 +123,14 @@ $version_list = Get-ChildItem -Path $CONFIG.DUMP_DIR -Directory
 $dump_ver_dir = $version_list[-1]
 
 $lobby_path_exh     = "$dump_ver_dir/exd/Lobby.exh"
-$lobby_path_strings = "./strings/exd/Lobby/ru.xlf"
+$lobby_path_strings = Get-Item -Path "./strings/exd/Lobby/ru.xlf"
 $lobby_path_output  = "./output/exd"
 
-$lobby = Import-Strings -Path $lobby_path_strings
-$lobby[12].String = $lobby[12].String -creplace '{{ version }}', $new_version
+$lobby_table = Import-Strings -Path $lobby_path_strings
+$lobby_table[12].String = $lobby_table[12].String -creplace '{{ version }}', $new_version
+$error_code = Export-Strings -Table $lobby_table `
+    -TargetLanguage 'ru' `
+    -Destination $lobby_path_strings.Directory
 
 $error_code = ./ConvertTo-GameData.ps1 `
     -ExhPath $lobby_path_exh `
