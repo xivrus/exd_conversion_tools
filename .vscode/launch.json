@@ -285,6 +285,20 @@
             "script": "./tools/migration/Migrate-ApprovedStates.ps1",
             "args": [],
             "createTemporaryIntegratedConsole": true
-        }
+        },
+        {
+            "name": "Retranslate-CompleteJournal",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "./tools/Retranslate-CompleteJournal.ps1",
+            "args": [
+				"-OldEnStringsPath ./tools/completejournal_files/old/en.xlf",
+				"-OldRuStringsPath ./tools/completejournal_files/old/ru.xlf",
+				"-NewEnStringsPath ./tools/completejournal_files/new/en.xlf",
+				"-NewRuStringsPath ./tools/completejournal_files/new/ru.xlf",
+				"-Destination ./tools/completejournal_files/CompleteJournal"
+			],
+            "createTemporaryIntegratedConsole": true
+        },
     ]
 }
