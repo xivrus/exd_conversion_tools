@@ -148,17 +148,28 @@ foreach ($input_strings_file in $input_strings_file_list) {
                     (Get-StringsFileExtension)
                 $table_source = Import-Strings -Path $split_file_source_path
 
-                foreach ($row in $tables_split.$split_file_name.GetEnumerator()) {
-                    if ($row.Value.String.Length -eq 0) {
-                        $id = $row.Key
-                        $row.Value.String = $table_source[$id].String
+                foreach ($row in $table_source.GetEnumerator()) {
+                    $index         = $row.Key
+                    $source_string = $row.Value.String
+
+                    if (-not $tables_split.$split_file_name.ContainsKey($index)) {
+                        $tables_split.$split_file_name.Add(
+                            $index,
+                            [pscustomobject]@{
+                                String = $source_string
+                                State  = $STRING_STATE_NOT_TRANSLATED
+                            }
+                        )
+                        continue
+                    }
+
+                    if (-not $tables_split.$split_file_name[$index].String.Length) {
+                        $tables_split.$split_file_name[$index].String = $source_string
                     }
                 }
             }
-
-            $index_list.AddRange( [int[]] $tables_split.$split_file_name.Keys )
         }
-        $index_list = $index_list | Sort-Object -Unique
+        $index_list = [int[]] $tables_split.$( $($tables_split.Keys)[0] ).Keys
 
         # Make a sorted reverse split table that dictates an order of split columns
         $reverse_split_table = [System.Collections.Generic.SortedDictionary[int,string]]::new()
