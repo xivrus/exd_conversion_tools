@@ -133,9 +133,29 @@ foreach ($input_strings_file in $input_strings_file_list) {
             $split_file_lang = $split_file.Value.ContainsKey('Language') ? $split_file.Value.Language : $SourceLanguage
 
             $split_file_path = "{0}/{1}/{2}.{3}" -f `
-                $input_strings_file.Directory.Parent, $split_file_name, $split_file_lang, (Get-StringsFileExtension)
+                $input_strings_file.Directory.Parent,
+                $split_file_name,
+                $split_file_lang,
+                (Get-StringsFileExtension)
             Write-Verbose "Getting table from $split_file_path..."
             $tables_split.$split_file_name = Import-Strings -Path $split_file_path
+
+            # Fill empty target strings with source
+            if ($split_file_lang -ne $CONFIG.MAIN_SOURCE_LANGUAGE) {
+                $split_file_source_path = "{0}/{1}/{2}.{3}" -f `
+                    $input_strings_file.Directory.Parent,
+                    $split_file_name,
+                    $CONFIG.MAIN_SOURCE_LANGUAGE,
+                    (Get-StringsFileExtension)
+                $table_source = Import-Strings -Path $split_file_source_path
+
+                foreach ($row in $tables_split.$split_file_name.GetEnumerator()) {
+                    if ($row.Value.String.Length -eq 0) {
+                        $id = $row.Key
+                        $row.Value.String = $table_source[$id].String
+                    }
+                }
+            }
 
             $index_list.AddRange( [int[]] $tables_split.$split_file_name.Keys )
         }
@@ -189,6 +209,22 @@ foreach ($input_strings_file in $input_strings_file_list) {
         $input_strings_file = Get-Item -Path (
             Get-TargetPath -Path $destination_strings_path -Language $SourceLanguage
         )
+
+        # ConvertTo-GameData script will expect to have a main source language strings file,
+        # which wouldn't be there after combining just target language files.
+        # Since combined file simply mirrors the original file, we'll just convert
+        # the original one.
+        $error_code = ./ConvertFrom-GameData.ps1 `
+            -ExhPath $exh_path `
+            -FileType XLIFFMonolingual `
+            -Languages 'en' `
+            -Destination $destination_strings_path `
+            -Overwrite `
+            -IgnoreSplits
+        if ($error_code) {
+            Write-Error "Error while converting original combined game file to $destination_strings_path"
+            continue
+        }
     }
 
     $result = ./ConvertTo-GameData.ps1 `
@@ -205,6 +241,12 @@ foreach ($input_strings_file in $input_strings_file_list) {
     }
 
     if ($files_combined.$file_name -and (Test-Path -Path $input_strings_file)) {
+        $source_strings_file = "{0}/{1}.{2}" -f `
+            $destination_strings_path,
+            $CONFIG.MAIN_SOURCE_LANGUAGE,
+            (Get-StringsFileExtension)
+
         Remove-Item -Path $input_strings_file
+        Remove-Item -Path $source_strings_file
     }
 }
