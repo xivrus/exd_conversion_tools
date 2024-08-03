@@ -55,6 +55,7 @@ if ($Version -eq 'latest') {
     }
     $dump_ver_dir = Get-Item -Path $dump_ver_path
 }
+Write-Information "Using version: $dump_ver_dir" -InformationAction Continue
 
 $search_query = "{0}/*{1}.{2}" -f $CONFIG.STRINGS_DIR, $SourceLanguage, (Get-StringsFileExtension)
 "Getting all {0} strings files at {1}" -f $SourceLanguage.ToUpper(), $CONFIG.STRINGS_DIR
