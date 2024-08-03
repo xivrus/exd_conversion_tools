@@ -52,7 +52,11 @@ param (
     # compression support.
     [Parameter()]
     [switch]
-    $Compress = $false
+    $Compress = $false,
+    # Ignore split config (Default: No)
+    [Parameter()]
+    [switch]
+    $IgnoreSplits = $false
 )
 
 
@@ -79,7 +83,7 @@ if ( $exh.IsLanguageDeclared('none') ) {
     return 1
 }
 $file_name = $ExhPath.BaseName
-$do_we_split_file = $SPLIT_FILE_LIST.ContainsKey($file_name)
+$do_we_split_file = $IgnoreSplits ? $false : $SPLIT_FILE_LIST.ContainsKey($file_name)
 if ($do_we_split_file) {
     # Make it a simple array for performance
     $new_split_files = foreach ($split in $SPLIT_FILE_LIST.$($file_name).Keys.GetEnumerator()) {
