@@ -95,6 +95,8 @@ else
 }
 
 # The following functions were written by me
+
+# Already previously reworked to use bytes instead of manipulating strings
 function Convert-VariablesToTags
 {
     ################################################################
@@ -445,6 +447,7 @@ catch {
     return ,$ByteArray
 }
 
+# TODO: This needs a rework... To use bytes instead of manipulating strings....
 function Convert-TagsToVariables
 {
     ################################################################
