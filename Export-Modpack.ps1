@@ -10,6 +10,17 @@ param (
     $IsHotfix = $false
 )
 
+# Start importing stuff
+$ErrorActionPreference_before = $ErrorActionPreference
+$ErrorActionPreference = 'Stop'
+
+Import-Module -Name "./lib/file_types/XLIFFMonolingual.psm1"
+$CONFIG = Get-Content -Path "./config.cfg" | ConvertFrom-StringData
+
+$ErrorActionPreference = $ErrorActionPreference_before
+# End of importing stuff
+
+
 $include_exds_dir      = Get-ChildItem -Path './output' -Filter 'exd' -Directory
 $include_textures_dir  = Get-ChildItem -Path './textures/root_mod_png_dds_tex/*' -Directory
 $include_raw_dir       = Get-ChildItem -Path './include_raw/*' -Directory
@@ -105,8 +116,33 @@ switch ($BuildType) {
 }
 
 $meta_json.Version = $new_version
+
+# Add version to Lobby file and convert it
+
+$version_list = Get-ChildItem -Path $CONFIG.DUMP_DIR -Directory
+$dump_ver_dir = $version_list[-1]
+
+$lobby_path_exh     = "$dump_ver_dir/exd/Lobby.exh"
+$lobby_path_strings = "./strings/exd/Lobby/ru.xlf"
+$lobby_path_output  = "./output/exd"
+
+$lobby = Import-Strings -Path $lobby_path_strings
+$lobby[12].String = $lobby[12].String -creplace '{{ version }}', $new_version
+
+$error_code = ./ConvertTo-GameData.ps1 `
+    -ExhPath $lobby_path_exh `
+    -StringsPath $lobby_path_strings `
+    -FileType XLIFFMonolingual `
+    -Overwrite `
+    -Destination $lobby_path_output
+if ($error_code) {
+    Write-Error "Error during EXD conversion"
+    return
+}
+
 $meta_json | ConvertTo-Json | Out-File $meta_json_path
 
+# Pack it up
 $null = New-Item -Path './modpacks' -ItemType Directory -ErrorAction SilentlyContinue
 $file_path_list = @(
     $include_exds_dir,
