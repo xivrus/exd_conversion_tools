@@ -86,6 +86,8 @@ foreach ($input_strings_file in $input_strings_file_list) {
         ($game_path -cmatch '^exd/(?:cut_scene|opening|quest)/') -and
         ($file_name -notin $QUEST_INCLUDE_LIST)) {
         Write-Warning "Quest file is not in include list, skipping - $input_strings_file"
+        continue
+    }
     }
 
     # If current file is one of the split ones, combine them back into
