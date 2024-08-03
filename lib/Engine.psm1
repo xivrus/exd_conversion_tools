@@ -637,11 +637,6 @@ function Convert-TagsToVariables
         }
     }
 
-    try {
-        $ByteArray = Convert-HexStringToByteArray $HexString
-    }
-    catch {
-        $_
-    }
+    $ByteArray = Convert-HexStringToByteArray -String $HexString -ErrorAction Stop
     return $ByteArray
 }
