@@ -88,6 +88,18 @@ foreach ($input_strings_file in $input_strings_file_list) {
         Write-Warning "Quest file is not in include list, skipping - $input_strings_file"
         continue
     }
+
+    # Compare last write time with cached one. Skip if it's the same.
+    # Time is in UTC for consistency sake
+    $last_write_time = $input_strings_file.LastWriteTime.ToUniversalTime().ToString()
+    $cache_file_path = "{0}/{1}/{2}/{3}.{4}.time" -f `
+        $CONFIG.CACHE_DIR, $game_path, $file_name, $SourceLanguage, (Get-StringsFileExtension)
+    if (Test-Path -Path $cache_file_path) {
+        $last_write_time_cached = Get-Content -Path $cache_file_path
+        if ($last_write_time -eq $last_write_time_cached) {
+            Write-Warning "File didn't change, skipping - $input_strings_file"
+            continue
+        }
     }
 
     # If current file is one of the split ones, combine them back into
@@ -177,20 +189,6 @@ foreach ($input_strings_file in $input_strings_file_list) {
         $input_strings_file = Get-Item -Path (
             Get-TargetPath -Path $destination_strings_path -Language $SourceLanguage
         )
-    }
-
-
-    # Compare last write time with cached one. Skip if it's the same.
-    # Time is in UTC for consistency sake
-    $last_write_time = $input_strings_file.LastWriteTime.ToUniversalTime().ToString()
-    $cache_file_path = "{0}/{1}/{2}/{3}.{4}.time" -f `
-        $CONFIG.CACHE_DIR, $game_path, $file_name, $SourceLanguage, (Get-StringsFileExtension)
-    if (Test-Path -Path $cache_file_path) {
-        $last_write_time_cached = Get-Content -Path $cache_file_path
-        if ($last_write_time -eq $last_write_time_cached) {
-            Write-Warning "File didn't change, skipping - $input_strings_file"
-            continue
-        }
     }
 
     $result = ./ConvertTo-GameData.ps1 `
