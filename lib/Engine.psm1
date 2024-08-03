@@ -642,25 +642,3 @@ function Convert-TagsToVariables
     }
     return $ByteArray
 }
-
-function Search-API {
-    param (
-        # Weblate server base URL
-        [string] $URI,
-        # Authorization headers
-        [hashtable] $h,
-        # Weblate project name
-        [string] $p,
-        # Component name
-        [string] $c,
-        # Language
-        [string] $l,
-        # Search string
-        [string] $q
-    )
-    $query = [System.Web.HTTPUtility]::UrlEncode($q)
-
-    $reply = Invoke-RestMethod -Method Get `
-        -Headers $h -Uri "https://$URI/api/translations/$p/$c/$l/units/?q=$query"
-    return $reply
-}
