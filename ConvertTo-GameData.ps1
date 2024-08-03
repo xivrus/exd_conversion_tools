@@ -52,7 +52,6 @@ param (
 $ErrorActionPreference_before = $ErrorActionPreference
 $ErrorActionPreference = 'Stop'
 
-Import-Module -Name "./lib/Engine.psm1"
 Import-Module -Name "./lib/file_types/$FileType.psm1"
 $CONFIG = Get-Content -Path "./config.cfg" | ConvertFrom-StringData
 
