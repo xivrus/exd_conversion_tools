@@ -2,10 +2,15 @@ cache
 changelogs
 dump
 game_files
+include_raw
 logs
+meta
+modpacks
+output
 strings
 config.cfg
 weblate.cfg
+tools/completejournal_files
 tools/tomestone-dump
 tools/migration
 .DS_Store

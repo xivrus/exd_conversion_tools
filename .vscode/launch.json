@@ -271,6 +271,34 @@
             "createTemporaryIntegratedConsole": true
         },
         {
+            "name": "Export-Modpack (test)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "./Export-Modpack.ps1",
+            "args": [],
+            "createTemporaryIntegratedConsole": true
+        },
+        {
+            "name": "Export-Modpack (release)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "./Export-Modpack.ps1",
+            "args": [
+                "-BuildType release"
+            ],
+            "createTemporaryIntegratedConsole": true
+        },
+        {
+            "name": "Export-Modpack (hotfix)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "./Export-Modpack.ps1",
+            "args": [
+                "-IsHotfix"
+            ],
+            "createTemporaryIntegratedConsole": true
+        },
+        {
             "name": "Convert-CSVtoXLIFF",
             "type": "PowerShell",
             "request": "launch",
