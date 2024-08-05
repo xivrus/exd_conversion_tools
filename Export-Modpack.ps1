@@ -121,10 +121,11 @@ $meta_json.Version = $new_version
 
 $version_list = Get-ChildItem -Path $CONFIG.DUMP_DIR -Directory
 $dump_ver_dir = $version_list[-1]
+$output_dir   = Get-Item -Path $CONFIG.OUTPUT_DIR
 
 $lobby_path_exh     = "$dump_ver_dir/exd/Lobby.exh"
 $lobby_path_strings = Get-Item -Path "./strings/exd/Lobby/ru.xlf"
-$lobby_path_output  = "./output/exd"
+$lobby_path_output  = "$output_dir/exd"
 
 $lobby_table = Import-Strings -Path $lobby_path_strings
 $lobby_table[12].String = $lobby_table[12].String -creplace '{{ version }}', $new_version
