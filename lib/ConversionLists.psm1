@@ -455,6 +455,10 @@ $global:QUEST_INCLUDE_LIST = @(
     #  - BRD
     'jobbrd300_01085', 'jobbrd350_01086', 'jobbrd400_01087',
     'jobbrd450_01088', 'jobbrd451_01089', 'jobbrd500_01090',
+    #  - NIN
+    'JobNin300_00212', 'JobNin301_00213', 'JobNin350_00214', 'JobNin351_00215',
+	'JobNin400_00216', 'JobNin401_00217', 'JobNin450_00232', 'JobNin451_00233',
+	'JobNin500_00234',
     #  - WHM
     'jobwhm300_01079', 'jobwhm350_01080', 'jobwhm400_01081',
     'jobwhm450_01082', 'jobwhm451_01083', 'jobwhm500_01084',
@@ -514,18 +518,26 @@ $global:QUEST_INCLUDE_LIST = @(
     'luckba431_03626', 'luckba441_03627', 'luckba451_03628',
     # - Endwalker
 
-    # Primals
+	# Chronicles of New Era
+	# - A Realm Reborn
+    #   - Primals
     'gaiusd001_01047', 'gaiusd002_01048', 'gaiusd003_01157', 'gaiusd004_01158',
     #'gaiusd011_01194', 'gaiusd012_01195', 'gaiusd013_01196', 'gaiusd014_01197',
     #'gaiusd015_01198', 'gaiusd016_01309', 'gaiusd017_01412', 'gaiusd018_01413',
     #'gaiusd019_01530', 'gaiusd020_00090', 'subcts902_00433',
-    # Odin feature quests
+    #   - Odin feature quests
     #'gaiusc607_01007', 'gaiusc608_01008', 'gaiusc609_01009', 'gaiusc612_01012',
-    # Crystal Tower
+    #   - Crystal Tower
     'gaiusd201_01199', 'gaiusx201_01709', 'gaiusd202_01200', 'gaiusd203_01201',
     'gaiusd204_01202', 'gaiusd205_01203', 'gaiusd401_01474', 'gaiusd601_00494',
     'gaiusd602_00495', 'gaiusd701_00497', 'mansea200_00546', 'gaiusd702_00498',
-    # The Shadow of Mhach
+	# - Heavensward
+	#   - Alexander
+	'HeaVnr101_02090', 'HeaVnr102_02091', 'HeaVnr103_02092', 'HeaVnr104_02093',
+	'HeaVnr105_02094', 'HeaVnr201_02249', 'HeaVnr202_02250', 'HeaVnr203_02251',
+	'HeaVnr204_02252', 'HeaVnr205_02253', 'HeaVnr301_02335', 'HeaVnr302_02336',
+	'HeaVnr303_02337', 'HeaVnr304_02338', 'HeaVnr305_02339',
+    #   - The Shadow of Mhach
     'heavnm101_02204', 'heavnm102_02205', 'heavnm201_02285', 'heavnm202_02286',
     'heavnm301_02373', 'heavnm302_02374', 'heavnm303_01480',
 
@@ -566,6 +578,8 @@ $global:QUEST_INCLUDE_LIST = @(
     #    2022
     'fesgsc601_04584', 
     #  - Moonfire Faire
+	#    2024
+	'FesSux001_05182', 'FesSux002_05183',
     #    2023
     'fessum901_04723', 'fessum902_04724',
     #    2022
