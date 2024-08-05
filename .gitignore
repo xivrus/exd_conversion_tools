@@ -8,6 +8,7 @@ meta
 modpacks
 output
 strings
+textures
 config.cfg
 weblate.cfg
 tools/completejournal_files
