@@ -139,6 +139,11 @@ $error_code = ./ConvertTo-GameData.ps1 `
     -FileType XLIFFMonolingual `
     -Overwrite `
     -Destination $lobby_path_output
+
+Set-Location -Path $CONFIG.STRINGS_DIR
+Invoke-Expression "git checkout ."
+Set-Location -Path ".."
+
 if ($error_code) {
     Write-Error "Error during EXD conversion"
     return
