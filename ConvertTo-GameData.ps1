@@ -111,10 +111,14 @@ foreach ($page_number in [int[]] $exh.PageTable.Keys) {
     $page_changed = $false
     foreach ($row in $exd.DataRowTable.GetEnumerator()) {
         $index = $row.Key
-        $string_target = $table_target[$index].String
-        $string_source = $table_source[$index].String
+        $string_target = $table_target[$index].String ? $table_target[$index].String : ''
+        $string_source = $table_source[$index].String ? $table_source[$index].String : ''
 
         if ($AddStringIDs) {
+            if (-not $string_target) {
+                $string_target = $string_source
+            }
+
             $string_id_text        = "{0}_" -f $index
             $quest_strings_regex   = "^TEXT_[A-Z0-9_]+?{0}(?!{1})" -f $COLUMN_SEPARATOR, $string_id_text
             $quest_strings_replace = "{0}{1}" -f $COLUMN_SEPARATOR, $string_id_text
