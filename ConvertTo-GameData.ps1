@@ -85,6 +85,7 @@ $StringsSourcePath = "{0}/{1}.{2}" -f $strings_file.Directory, $OutputLanguage, 
 
 $table_target = Import-Strings -Path $StringsPath
 $table_source = Import-Strings -Path $StringsSourcePath
+$empty_string = $COLUMN_SEPARATOR * $($exh.GetStringDatasetOffsets().Count - 1)
 
 # Whenever error flag is set we stop writing strings into EXD
 # but continue going through the strings to catch and report more
@@ -111,8 +112,8 @@ foreach ($page_number in [int[]] $exh.PageTable.Keys) {
     $page_changed = $false
     foreach ($row in $exd.DataRowTable.GetEnumerator()) {
         $index = $row.Key
-        $string_target = $table_target[$index].String ? $table_target[$index].String : ''
-        $string_source = $table_source[$index].String ? $table_source[$index].String : ''
+        $string_target = $table_target[$index].String ? $table_target[$index].String : $empty_string
+        $string_source = $table_source[$index].String ? $table_source[$index].String : $empty_string
 
         if ($AddStringIDs) {
             if (-not $string_target) {
