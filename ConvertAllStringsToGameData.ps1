@@ -39,7 +39,8 @@ $ErrorActionPreference = 'Stop'
 
 Import-Module -Name "./lib/ConversionLists.psm1"
 Import-Module -Name "./lib/file_types/$FileType.psm1"
-$CONFIG = Get-Content -Path "./config.cfg" | ConvertFrom-StringData
+$CONFIG           = Import-PowerShellDataFile -Path "./config/config.psd1"
+$CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff
@@ -63,7 +64,7 @@ $input_strings_file_list = Get-ChildItem -Path $search_query -Recurse -File
 "Done."
 
 # Make a normal array of all files that need to be combined
-$files_to_combine = foreach ($split_file in $SPLIT_FILE_LIST.GetEnumerator()) {
+$files_to_combine = foreach ($split_file in $CONVERSION_LISTS.SPLIT_FILES.GetEnumerator()) {
     foreach ($file_name in [string[]] $split_file.Value.Keys) {
         $file_name
     }
@@ -83,7 +84,7 @@ foreach ($input_strings_file in $input_strings_file_list) {
 
     if (-not $IgnoreQuestIncludeList -and
         ($game_path -cmatch '^exd/(?:cut_scene|opening|quest)/') -and
-        ($file_name -notin $QUEST_INCLUDE_LIST)) {
+        ($file_name -notin $CONVERSION_LISTS.INCLUDE_QUESTS)) {
         Write-Warning "Quest file is not in include list, skipping - $input_strings_file"
         continue
     }
@@ -127,7 +128,7 @@ foreach ($input_strings_file in $input_strings_file_list) {
         $tables_split = @{}
         # Also determine all existing rows to go through them later
         $index_list = [System.Collections.Generic.List[int]]::new()
-        foreach ($split_file in $SPLIT_FILE_LIST.$file_name.GetEnumerator()) {
+        foreach ($split_file in $CONVERSION_LISTS.SPLIT_FILES.$file_name.GetEnumerator()) {
             $split_file_name = $split_file.Key
             $split_file_lang = $split_file.Value.ContainsKey('Language') ? $split_file.Value.Language : $SourceLanguage
 
@@ -173,7 +174,7 @@ foreach ($input_strings_file in $input_strings_file_list) {
 
         # Make a sorted reverse split table that dictates an order of split columns
         $reverse_split_table = [System.Collections.Generic.SortedDictionary[int,string]]::new()
-        foreach ($split_file in $SPLIT_FILE_LIST.$file_name.GetEnumerator()) {
+        foreach ($split_file in $CONVERSION_LISTS.SPLIT_FILES.$file_name.GetEnumerator()) {
             foreach ($column in $split_file.Value.Columns) {
                 $reverse_split_table.$column = $split_file.Key
             }
@@ -185,7 +186,7 @@ foreach ($input_strings_file in $input_strings_file_list) {
         foreach ($index in $index_list) {
             $split_sets = @{}
             $i = @{}
-            foreach ($split_file_name in [string[]] $SPLIT_FILE_LIST.$file_name.Keys) {
+            foreach ($split_file_name in [string[]] $CONVERSION_LISTS.SPLIT_FILES.$file_name.Keys) {
                 $split_sets.$split_file_name = $tables_split.$split_file_name[$index].String -split $COLUMN_SEPARATOR
                 $i.$split_file_name = 0
             }

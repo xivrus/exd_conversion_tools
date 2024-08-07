@@ -15,7 +15,7 @@ $ErrorActionPreference_before = $ErrorActionPreference
 $ErrorActionPreference = 'Stop'
 
 Import-Module -Name "./lib/file_types/XLIFFMonolingual.psm1"
-$CONFIG = Get-Content -Path "./config.cfg" | ConvertFrom-StringData
+$CONFIG = Import-PowerShellDataFile -Path "./config/config.psd1"
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff

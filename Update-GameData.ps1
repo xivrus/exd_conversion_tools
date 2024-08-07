@@ -240,19 +240,27 @@ $LANGUAGES_OFFICIAL = [LanguageCodes].GetEnumNames()
 $ErrorActionPreference_before = $ErrorActionPreference
 $ErrorActionPreference = 'Stop'
 
-Import-Module -Name "./lib/file_types/$FileType.psm1"
-Import-Module -Name "./lib/ConversionLists.psm1"
-Import-Module -Name "./lib/Engine.psm1"
-$CONFIG = Get-Content -Path "./config.cfg" | ConvertFrom-StringData
+try {
+    Import-Module -Name "./lib/file_types/$FileType.psm1"
+    $CONFIG           = Import-PowerShellDataFile -Path "./config/config.psd1"
+    $CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
+}
+catch {
+    $ErrorActionPreference = $ErrorActionPreference_before
+    $_
+    return 2
+}
+
+$ErrorActionPreference = $ErrorActionPreference_before
+# End of importing stuff
+
 $InformationPreference = 'Continue'
-if ($CONFIG.VERBOSE -eq 1) {
+if ($CONFIG.VERBOSE) {
     $VerbosePreference = 'Continue'
 } else {
     $VerbosePreference = 'SilentlyContinue'
 }
 
-$ErrorActionPreference = $ErrorActionPreference_before
-# End of importing stuff
 
 
 if ($CurrentVersion -eq 'latest') {
@@ -292,7 +300,7 @@ if ($NewVersion -eq 'latest') {
 Write-Information "New version path:     $dump_dir_new"
 
 # Make a normal array of all split files
-$split_files = foreach ($split_file in $SPLIT_FILE_LIST.GetEnumerator()) {
+$split_files = foreach ($split_file in $CONVERSION_LISTS.SPLIT_FILES.GetEnumerator()) {
     foreach ($file_name in [string[]] $split_file.Value.Keys) {
         $file_name
     }
@@ -595,7 +603,7 @@ foreach ($new_exh_file in $new_exh_list) {
                     }
 
                     $table_current_un = Import-Strings -Path $strings_file
-                    $add_string_ids = $file_name.ToLower() -in $UPDATE_ADD_INDEX
+                    $add_string_ids = $file_name.ToLower() -in $CONVERSION_LISTS.ADD_IDS_ON_UPDATE
 
                     $changes_un = Update-StringsUnofficial `
                         -TableCurrent $table_current_un `

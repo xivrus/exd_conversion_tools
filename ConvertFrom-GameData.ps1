@@ -64,11 +64,11 @@ param (
 $ErrorActionPreference_before = $ErrorActionPreference
 $ErrorActionPreference = 'Stop'
 
-Import-Module -Name "./lib/ConversionLists.psm1"
 Import-Module -Name "./lib/Engine.psm1"
 if ($FileType -ne 'Memory') {
     Import-Module -Name "./lib/file_types/$FileType.psm1"
 }
+$CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff
@@ -83,10 +83,10 @@ if ( $exh.IsLanguageDeclared('none') ) {
     return 1
 }
 $file_name = $ExhPath.BaseName
-$do_we_split_file = $IgnoreSplits ? $false : $SPLIT_FILE_LIST.ContainsKey($file_name)
+$do_we_split_file = $IgnoreSplits ? $false : $CONVERSION_LISTS.SPLIT_FILES.ContainsKey($file_name)
 if ($do_we_split_file) {
     # Make it a simple array for performance
-    $new_split_files = foreach ($split in $SPLIT_FILE_LIST.$($file_name).Keys.GetEnumerator()) {
+    $new_split_files = foreach ($split in $CONVERSION_LISTS.SPLIT_FILES.$($file_name).Keys.GetEnumerator()) {
         $split
     }
 

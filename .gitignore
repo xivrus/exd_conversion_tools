@@ -4,13 +4,15 @@ dump
 game_files
 include_raw
 logs
+markup
 meta
 modpacks
 output
 strings
 textures
-config.cfg
-weblate.cfg
+config/config.psd1
+config/conversion_lists.psd1
+config/weblate.psd1
 tools/completejournal_files
 tools/tomestone-dump
 tools/migration
