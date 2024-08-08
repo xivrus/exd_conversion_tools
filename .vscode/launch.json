@@ -20,10 +20,10 @@
             "request": "launch",
             "script": "./ConvertFrom-GameData.ps1 (6.58)",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/Achievement.exh",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/Achievement.exh",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/strings/exd/Achievement"
+                "-Destination ./strings/exd/Achievement"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -33,10 +33,10 @@
             "request": "launch",
             "script": "./ConvertFrom-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/Addon.exh",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/Addon.exh",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/strings/exd/Addon"
+                "-Destination ./strings/exd/Addon"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -46,10 +46,10 @@
             "request": "launch",
             "script": "./ConvertFrom-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/CompanionTransient.exh",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/CompanionTransient.exh",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/strings/exd/CompanionTransient"
+                "-Destination ./strings/exd/CompanionTransient"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -59,10 +59,11 @@
             "request": "launch",
             "script": "./ConvertFrom-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/Item.exh",
+                "-ExhPath ./dump/2024.08.02.0000.0000/exd/Item.exh",
                 "-FileType XLIFFMonolingual",
+                "-Languages en",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/strings/exd/Item"
+                "-Destination ./strings/exd/Item"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -72,10 +73,10 @@
             "request": "launch",
             "script": "./ConvertFrom-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/warp/SkyIslandEntrance.exh",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/warp/SkyIslandEntrance.exh",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/strings/warp/SkyIslandEntrance"
+                "-Destination ./strings/warp/SkyIslandEntrance"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -85,10 +86,10 @@
             "request": "launch",
             "script": "./ConvertFrom-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/CharaMakeType.exh",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/CharaMakeType.exh",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/strings/CharaMakeType"
+                "-Destination ./strings/CharaMakeType"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -98,10 +99,10 @@
             "request": "launch",
             "script": "./ConvertFrom-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/quest/000/ClsArc000_00021.exh",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/quest/000/ClsArc000_00021.exh",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/strings/exd/quest/000/ClsArc000_00021"
+                "-Destination ./strings/exd/quest/000/ClsArc000_00021"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -135,11 +136,11 @@
             "request": "launch",
             "script": "./ConvertTo-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/Achievement.exh",
-                "-StringsPath /home/ender/xivrus/strings/exd/Achievement/ru.xlf",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/Achievement.exh",
+                "-StringsPath ./strings/exd/Achievement/ru.xlf",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/output/exd"
+                "-Destination ./output/exd"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -149,11 +150,11 @@
             "request": "launch",
             "script": "./ConvertTo-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/Addon.exh",
-                "-StringsPath /home/ender/xivrus/strings/exd/Addon/ru.xlf",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/Addon.exh",
+                "-StringsPath ./strings/exd/Addon/ru.xlf",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/output/exd"
+                "-Destination ./output/exd"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -163,11 +164,11 @@
             "request": "launch",
             "script": "./ConvertTo-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/CompanionTransient.exh",
-                "-StringsPath /home/ender/xivrus/strings/exd/CompanionTransient/ru.xlf",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/CompanionTransient.exh",
+                "-StringsPath ./strings/exd/CompanionTransient/ru.xlf",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/output/exd"
+                "-Destination ./output/exd"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -177,11 +178,11 @@
             "request": "launch",
             "script": "./ConvertTo-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/Item.exh",
-                "-StringsPath /home/ender/xivrus/strings/exd/Item/ItemName/ru.xlf",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/Item.exh",
+                "-StringsPath ./strings/exd/Item/ItemName/ru.xlf",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/output/exd"
+                "-Destination ./output/exd"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -191,11 +192,41 @@
             "request": "launch",
             "script": "./ConvertTo-GameData.ps1",
             "args": [
-                "-ExhPath /home/ender/xivrus/dump/2024.03.27.0000.0000/exd/quest/000/ClsArc000_00021.exh",
-                "-StringsPath /home/ender/xivrus/strings/exd/quest/000/ClsArc000_00021/ru.xlf",
+                "-ExhPath ./dump/2024.03.27.0000.0000/exd/quest/000/ClsArc000_00021.exh",
+                "-StringsPath ./strings/exd/quest/000/ClsArc000_00021/ru.xlf",
                 "-FileType XLIFFMonolingual",
                 "-Overwrite",
-                "-Destination /home/ender/xivrus/output/exd/quest/000"
+                "-Destination ./output/exd/quest/000"
+            ],
+            "createTemporaryIntegratedConsole": true
+        },
+        {
+            "name": "ConvertTo-GameData - ActionTransient w/ IDs (1 column)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "./ConvertTo-GameData.ps1",
+            "args": [
+                "-ExhPath ./dump/2024.07.24.0000.0000/exd/ActionTransient.exh",
+                "-StringsPath ./strings/exd/ActionTransient/ru.xlf",
+                "-FileType XLIFFMonolingual",
+                "-Overwrite",
+                "-Destination ./output/exd",
+                "-AddStringIDs"
+            ],
+            "createTemporaryIntegratedConsole": true
+        },
+        {
+            "name": "ConvertTo-GameData - Status w/ IDs (2 columns)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "./ConvertTo-GameData.ps1",
+            "args": [
+                "-ExhPath ./dump/2024.07.24.0000.0000/exd/Status.exh",
+                "-StringsPath ./strings/exd/Status/ru.xlf",
+                "-FileType XLIFFMonolingual",
+                "-Overwrite",
+                "-Destination ./output/exd",
+                "-AddStringIDs"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -254,8 +285,8 @@
             "request": "launch",
             "script": "./tools/Combine-Changelogs.ps1",
             "args": [
-                "-ChangelogPathSource /home/ender/xivrus/changelogs/6.58->7.0/en.csv",
-                "-ChangelogPathTarget /home/ender/xivrus/changelogs/6.58->7.0/ru.csv"
+                "-ChangelogPathSource ./changelogs/6.58->7.0/en.csv",
+                "-ChangelogPathTarget ./changelogs/6.58->7.0/ru.csv"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -265,8 +296,8 @@
             "request": "launch",
             "script": "./tools/Combine-Changelogs.ps1",
             "args": [
-                "-ChangelogPathSource /home/ender/xivrus/changelogs/7.0->7.01/en.csv",
-                "-ChangelogPathTarget /home/ender/xivrus/changelogs/7.0->7.01/ru.csv"
+                "-ChangelogPathSource ./changelogs/7.0->7.01/en.csv",
+                "-ChangelogPathTarget ./changelogs/7.0->7.01/ru.csv"
             ],
             "createTemporaryIntegratedConsole": true
         },
@@ -296,22 +327,6 @@
             "args": [
                 "-IsHotfix"
             ],
-            "createTemporaryIntegratedConsole": true
-        },
-        {
-            "name": "Convert-CSVtoXLIFF",
-            "type": "PowerShell",
-            "request": "launch",
-            "script": "./tools/migration/Convert-CSVtoXLIFF.ps1",
-            "args": [],
-            "createTemporaryIntegratedConsole": true
-        },
-        {
-            "name": "Migrate-ApprovedStates",
-            "type": "PowerShell",
-            "request": "launch",
-            "script": "./tools/migration/Migrate-ApprovedStates.ps1",
-            "args": [],
             "createTemporaryIntegratedConsole": true
         },
         {
