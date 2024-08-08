@@ -218,7 +218,7 @@ foreach ($lang in $Languages) {
                 $result_split = $result -split $COLUMN_SEPARATOR
 
                 foreach ($new_split_file in $new_split_files) {
-                    $splits_to_join = foreach ($column_number in $SPLIT_FILE_LIST.$file_name.$new_split_file.Columns) {
+                    $splits_to_join = foreach ($column_number in $CONVERSION_LISTS.SPLIT_FILES.$file_name.$new_split_file.Columns) {
                         $result_split[$column_number]
                     }
 
