@@ -37,6 +37,9 @@ function Export-Strings {
         [Parameter(Mandatory)]
         [System.Collections.Generic.SortedDictionary[int,pscustomobject]]
         $Table,
+        [Parameter()]
+        [string]
+        $SourceLanguage = 'en',
         [Parameter(Mandatory)]
         [string]
         $TargetLanguage,

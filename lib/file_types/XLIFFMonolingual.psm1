@@ -23,6 +23,9 @@ function Export-Strings {
         [Parameter(Mandatory)]
         [System.Collections.Generic.SortedDictionary[int,pscustomobject]]
         $Table,
+        [Parameter()]
+        [string]
+        $SourceLanguage = 'en',
         [Parameter(Mandatory)]
         [string]
         $TargetLanguage,
@@ -73,7 +76,7 @@ function Export-Strings {
     $xliff_writer.WriteStartElement('file')
     $xliff_writer.WriteAttributeString('original', $file_name)
     $xliff_writer.WriteAttributeString('datatype', 'plaintext')
-    $xliff_writer.WriteAttributeString('source-language', 'en')
+    $xliff_writer.WriteAttributeString('source-language', $SourceLanguage)
     $xliff_writer.WriteAttributeString('target-language', $TargetLanguage)
 
     $xliff_writer.WriteStartElement('body')
