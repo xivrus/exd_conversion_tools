@@ -13,7 +13,7 @@
     #         - 0a0000.win32.index2
     #     - ffxivgame.ver
     # This path is used by dumping script in read-only mode.
-    GAME_FILES_DIR = Get-Item -Path ''
+    GAME_FILES_DIR = ''
 
     # Full path to the folder where the dumps would live.
     # Note that internal versioning of the game is not the same
@@ -21,10 +21,10 @@
     # such as 6.58, 7.0, etc.
     # Also note that this folder is also used by non-dumping
     # scripts, but in read-only mode.
-    DUMP_DIR = Get-Item -Path './dump'
+    DUMP_DIR = './dump'
 
     # Full path to the folder where the strings files should be saved.
-    STRINGS_DIR = Get-Item -Path './strings'
+    STRINGS_DIR = './strings'
 
     # Full path to the folder where the output should be saved.
     # Output includes:
@@ -32,14 +32,14 @@
     # The structure of the files is preserved so that creating
     # a Penumbra modpack would be a simple matter of zipping a folder
     # (and generating and adding metadata files).
-    OUTPUT_DIR = Get-Item -Path './output'
+    OUTPUT_DIR = './output'
 
     # Full path to the cache folder.
     # Cache includes:
     #   * Files with timestamps of strings files that were previously
     #     converted so that during mass conversion the scripts
     #     would not touch the files that didn't change
-    CACHE_DIR = Get-Item -Path './cache'
+    CACHE_DIR = './cache'
 
     # One of the official languages that you want to translate
     # the game from.
