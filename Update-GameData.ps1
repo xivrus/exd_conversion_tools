@@ -244,6 +244,10 @@ try {
     Import-Module -Name "./lib/file_types/$FileType.psm1"
     $CONFIG           = Import-PowerShellDataFile -Path "./config/config.psd1"
     $CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
+
+    $CONFIG.DUMP_DIR    = Get-Item -Path $CONFIG.DUMP_DIR
+    $CONFIG.STRINGS_DIR = Get-Item -Path $CONFIG.STRINGS_DIR
+    $CONFIG.CACHE_DIR   = Get-Item -Path $CONFIG.CACHE_DIR
 }
 catch {
     $ErrorActionPreference = $ErrorActionPreference_before
