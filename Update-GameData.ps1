@@ -603,7 +603,7 @@ foreach ($new_exh_file in $new_exh_list) {
                     }
 
                     $table_current_un = Import-Strings -Path $strings_file
-                    $add_string_ids = $file_name.ToLower() -in $CONVERSION_LISTS.ADD_IDS_ON_UPDATE
+                    $add_string_ids = $file_name -in $CONVERSION_LISTS.ADD_IDS_ON_UPDATE
 
                     $changes_un = Update-StringsUnofficial `
                         -TableCurrent $table_current_un `
