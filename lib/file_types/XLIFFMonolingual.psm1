@@ -114,6 +114,7 @@ function Export-Strings {
         if ($approved) {
             $xliff_writer.WriteAttributeString('approved', $approved)
         }
+        $xliff_writer.WriteAttributeString('xml', 'space', $null, 'preserve')
 
         $xliff_writer.WriteStartElement('source')
         $xliff_writer.WriteString($index)
@@ -123,7 +124,6 @@ function Export-Strings {
         if ($state) {
             $xliff_writer.WriteAttributeString('state', $state)
         }
-        $xliff_writer.WriteAttributeString('xml', 'space', $null, 'preserve')
         $xliff_writer.WriteString($string)
         $xliff_writer.WriteEndElement() # target
 
