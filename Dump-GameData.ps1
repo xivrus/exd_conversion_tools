@@ -23,22 +23,30 @@ function Test-File ([string]$Path, [string]$PathGame) {
 $ErrorActionPreference_before = $ErrorActionPreference
 $ErrorActionPreference = 'Stop'
 
-# Import-Module -Name "./lib/ConversionLists.psm1"
 $CONFIG = Import-PowerShellDataFile -Path "./config/config.psd1"
+foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
+    try {
+        $CONFIG.PATHS.$path_name = (Resolve-Path -Path $CONFIG.PATHS.$path_name).Path
+    }
+    catch {
+        Write-Error ("Path {0} could not be resolved." -f $CONFIG.PATHS.$path_name)
+        return 2
+    }
+}
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff
 
 
 if ($Version -eq 'latest') {
-    $versions = Get-ChildItem -Path $CONFIG.GAME_FILES_DIR -Directory
+    $versions = Get-ChildItem -Path $CONFIG.PATHS.GAME_FILES_DIR -Directory
     $game_files_dir = $versions[-1]
 } else {
-    $game_files_dir = Join-Path -Path $CONFIG.GAME_FILES_DIR -ChildPath $Version
+    $game_files_dir = Join-Path -Path $CONFIG.PATHS.GAME_FILES_DIR -ChildPath $Version
 }
 
 $ffxiv_install_ver = Get-Content -Path "$game_files_dir/game/ffxivgame.ver"
-$full_dump_dir = "$($CONFIG.DUMP_DIR)/$ffxiv_install_ver"
+$full_dump_dir = "$($CONFIG.PATHS.DUMP_DIR)/$ffxiv_install_ver"
 $null = New-Item -Path $full_dump_dir -ItemType Directory -ErrorAction Ignore
 
 $RootExl = Invoke-Expression "./tools/tomestone-dump --ffxiv-install-dir $game_files_dir raw exd/root.exl"

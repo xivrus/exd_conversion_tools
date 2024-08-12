@@ -37,19 +37,27 @@ param (
 $ErrorActionPreference_before = $ErrorActionPreference
 $ErrorActionPreference = 'Stop'
 
-Import-Module -Name "./lib/ConversionLists.psm1"
 Import-Module -Name "./lib/file_types/$FileType.psm1"
-$CONFIG           = Import-PowerShellDataFile -Path "./config/config.psd1"
+$CONFIG = Import-PowerShellDataFile -Path "./config/config.psd1"
+foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
+    try {
+        $CONFIG.PATHS.$path_name = (Resolve-Path -Path $CONFIG.PATHS.$path_name).Path
+    }
+    catch {
+        Write-Error ("Path {0} could not be resolved." -f $CONFIG.PATHS.$path_name)
+        return 2
+    }
+}
 $CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff
 
 if ($Version -eq 'latest') {
-    $version_list = Get-ChildItem -Path $CONFIG.DUMP_DIR -Directory
+    $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory
     $dump_ver_dir = $version_list[-1]
 } else {
-    $dump_ver_path = "{0}/{1}" -f $CONFIG.DUMP_DIR, $Version
+    $dump_ver_path = "{0}/{1}" -f $CONFIG.PATHS.DUMP_DIR, $Version
     if (-not $(Test-Path -Path $dump_ver_path)) {
         throw "Version $Version was not found in dump folder."
     }
@@ -57,8 +65,8 @@ if ($Version -eq 'latest') {
 }
 Write-Information "Using version: $dump_ver_dir" -InformationAction Continue
 
-$search_query = "{0}/*{1}.{2}" -f $CONFIG.STRINGS_DIR, $SourceLanguage, (Get-StringsFileExtension)
-"Getting all {0} strings files at {1}" -f $SourceLanguage.ToUpper(), $CONFIG.STRINGS_DIR
+$search_query = "{0}/*{1}.{2}" -f $CONFIG.PATHS.STRINGS_DIR, $SourceLanguage, (Get-StringsFileExtension)
+"Getting all {0} strings files at {1}" -f $SourceLanguage.ToUpper(), $CONFIG.PATHS.STRINGS_DIR
 Write-Verbose "Search query: $search_query"
 $input_strings_file_list = Get-ChildItem -Path $search_query -Recurse -File
 "Done."
@@ -77,10 +85,10 @@ foreach ($input_strings_file in $input_strings_file_list) {
     # Set up paths
     $file_name = $input_strings_file.Directory.BaseName
     $game_path = $input_strings_file.DirectoryName `
-        -creplace "$($CONFIG.STRINGS_DIR)/", '' `
+        -creplace "$($CONFIG.PATHS.STRINGS_DIR)/", '' `
         -creplace "/$file_name`$", ''
     $exh_path = "{0}/{1}/{2}.exh" -f $dump_ver_dir, $game_path, $file_name
-    $destination_path = "{0}/{1}" -f $CONFIG.OUTPUT_DIR, $game_path
+    $destination_path = "{0}/{1}" -f $CONFIG.PATHS.OUTPUT_DIR, $game_path
 
     if (-not $IgnoreQuestIncludeList -and
         ($game_path -cmatch '^exd/(?:cut_scene|opening|quest)/') -and
@@ -93,7 +101,7 @@ foreach ($input_strings_file in $input_strings_file_list) {
     # Time is in UTC for consistency sake
     $last_write_time = $input_strings_file.LastWriteTime.ToUniversalTime().ToString()
     $cache_file_path = "{0}/{1}/{2}/{3}.{4}.time" -f `
-        $CONFIG.CACHE_DIR, $game_path, $file_name, $SourceLanguage, (Get-StringsFileExtension)
+        $CONFIG.PATHS.CACHE_DIR, $game_path, $file_name, $SourceLanguage, (Get-StringsFileExtension)
     if (Test-Path -Path $cache_file_path) {
         $last_write_time_cached = Get-Content -Path $cache_file_path
         if ($last_write_time -eq $last_write_time_cached) {
@@ -112,12 +120,12 @@ foreach ($input_strings_file in $input_strings_file_list) {
         # Set up paths again, but differently
         $file_name = $input_strings_file.Directory.Parent.Name
         $game_path = $input_strings_file.Directory.Parent `
-            -creplace "$($CONFIG.STRINGS_DIR)/", '' `
+            -creplace "$($CONFIG.PATHS.STRINGS_DIR)/", '' `
             -creplace "/$file_name`$", ''
         $exh_path = "{0}/{1}/{2}.exh" -f $dump_ver_dir, $game_path, $file_name
-        $destination_path = "{0}/{1}" -f $CONFIG.OUTPUT_DIR, $game_path
+        $destination_path = "{0}/{1}" -f $CONFIG.PATHS.OUTPUT_DIR, $game_path
 
-        $destination_strings_path = "{0}/{1}/{2}"  -f $CONFIG.STRINGS_DIR, $game_path, $file_name
+        $destination_strings_path = "{0}/{1}/{2}"  -f $CONFIG.PATHS.STRINGS_DIR, $game_path, $file_name
 
         if ($files_combined.ContainsKey($file_name)) {
             Write-Verbose "File was already combined into $file_name - $input_strings_file"

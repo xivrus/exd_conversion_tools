@@ -145,6 +145,20 @@
             "createTemporaryIntegratedConsole": true
         },
         {
+            "name": "ConvertTo-GameData - Lobby (Normal EXD)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "./ConvertTo-GameData.ps1",
+            "args": [
+                "-ExhPath ./dump/2024.08.02.0000.0000/exd/Lobby.exh",
+                "-StringsPath ./strings/exd/Lobby/ru.xlf",
+                "-FileType XLIFFMonolingual",
+                "-Overwrite",
+                "-Destination ./output/exd"
+            ],
+            "createTemporaryIntegratedConsole": true
+        },
+        {
             "name": "ConvertTo-GameData - Addon (EXD w/ broken index order)",
             "type": "PowerShell",
             "request": "launch",

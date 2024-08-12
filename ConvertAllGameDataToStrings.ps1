@@ -38,16 +38,25 @@ $ErrorActionPreference = 'Stop'
 
 Import-Module -Name "./lib/file_types/$FileType.psm1"
 $CONFIG = Import-PowerShellDataFile -Path "./config/config.psd1"
+foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
+    try {
+        $CONFIG.PATHS.$path_name = (Resolve-Path -Path $CONFIG.PATHS.$path_name).Path
+    }
+    catch {
+        Write-Error ("Path {0} could not be resolved." -f $CONFIG.PATHS.$path_name)
+        return 2
+    }
+}
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff
 
 
 if ($Version -eq 'latest') {
-    $version_list = Get-ChildItem -Path $CONFIG.DUMP_DIR -Directory
+    $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory
     $dump_ver_path = $version_list[-1]
 } else {
-    $dump_ver_path = "{0}/{1}" -f $CONFIG.DUMP_DIR, $Version
+    $dump_ver_path = "{0}/{1}" -f $CONFIG.PATHS.DUMP_DIR, $Version
     if (-not $(Test-Path -Path $dump_ver_path)) {
         throw "Version $Version was not found in dump folder."
     }
@@ -56,7 +65,7 @@ if ($Version -eq 'latest') {
 $exh_list = Get-ChildItem -Path "$dump_ver_path/*.exh" -Recurse -File
 foreach ($exh in $exh_list) {
     $sub_path = $exh.FullName.Replace("$dump_ver_path/",'') -creplace '\.exh$', ''
-    $strings_path = "{0}/{1}" -f $CONFIG.STRINGS_DIR, $sub_path
+    $strings_path = "{0}/{1}" -f $CONFIG.PATHS.STRINGS_DIR, $sub_path
 
     $result = ./ConvertFrom-GameData.ps1 `
         -ExhPath $exh `

@@ -54,6 +54,15 @@ $ErrorActionPreference = 'Stop'
 
 Import-Module -Name "./lib/file_types/$FileType.psm1"
 $CONFIG = Import-PowerShellDataFile -Path "./config/config.psd1"
+foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
+    try {
+        $CONFIG.PATHS.$path_name = (Resolve-Path -Path $CONFIG.PATHS.$path_name).Path
+    }
+    catch {
+        Write-Error ("Path {0} could not be resolved." -f $CONFIG.PATHS.$path_name)
+        return 2
+    }
+}
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff

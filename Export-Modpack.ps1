@@ -16,6 +16,15 @@ $ErrorActionPreference = 'Stop'
 
 Import-Module -Name "./lib/file_types/XLIFFMonolingual.psm1"
 $CONFIG = Import-PowerShellDataFile -Path "./config/config.psd1"
+foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
+    try {
+        $CONFIG.PATHS.$path_name = (Resolve-Path -Path $CONFIG.PATHS.$path_name).Path
+    }
+    catch {
+        Write-Error ("Path {0} could not be resolved." -f $CONFIG.PATHS.$path_name)
+        return 2
+    }
+}
 
 $ErrorActionPreference = $ErrorActionPreference_before
 # End of importing stuff
@@ -119,9 +128,9 @@ $meta_json.Version = $new_version
 
 # Add version to Lobby file and convert it
 
-$version_list = Get-ChildItem -Path $CONFIG.DUMP_DIR -Directory
+$version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory
 $dump_ver_dir = $version_list[-1]
-$output_dir   = Get-Item -Path $CONFIG.OUTPUT_DIR
+$output_dir   = Get-Item -Path $CONFIG.PATHS.OUTPUT_DIR
 
 $lobby_path_exh     = "$dump_ver_dir/exd/Lobby.exh"
 $lobby_path_strings = Get-Item -Path "./strings/exd/Lobby/ru.xlf"
@@ -140,7 +149,7 @@ $error_code = ./ConvertTo-GameData.ps1 `
     -Overwrite `
     -Destination $lobby_path_output
 
-Set-Location -Path $CONFIG.STRINGS_DIR
+Set-Location -Path $CONFIG.PATHS.STRINGS_DIR
 Invoke-Expression "git checkout ."
 Set-Location -Path ".."
 

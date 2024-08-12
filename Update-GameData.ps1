@@ -244,10 +244,15 @@ try {
     Import-Module -Name "./lib/file_types/$FileType.psm1"
     $CONFIG           = Import-PowerShellDataFile -Path "./config/config.psd1"
     $CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
-
-    $CONFIG.DUMP_DIR    = Get-Item -Path $CONFIG.DUMP_DIR
-    $CONFIG.STRINGS_DIR = Get-Item -Path $CONFIG.STRINGS_DIR
-    $CONFIG.CACHE_DIR   = Get-Item -Path $CONFIG.CACHE_DIR
+    foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
+        try {
+            $CONFIG.PATHS.$path_name = (Resolve-Path -Path $CONFIG.PATHS.$path_name).Path
+        }
+        catch {
+            Write-Error ("Path {0} could not be resolved." -f $CONFIG.PATHS.$path_name)
+            return 2
+        }
+    }
 }
 catch {
     $ErrorActionPreference = $ErrorActionPreference_before
@@ -271,7 +276,7 @@ if ($CurrentVersion -eq 'latest') {
     Write-Error "Current version can't be 'latest'"
     return 2
 } else {
-    $dump_dir_current = "{0}/{1}" -f $CONFIG.DUMP_DIR, $CurrentVersion
+    $dump_dir_current = "{0}/{1}" -f $CONFIG.PATHS.DUMP_DIR, $CurrentVersion
     if (-not $(Test-Path -Path $dump_dir_current)) {
         throw "Version $CurrentVersion was not found in dump folder."
     }
@@ -279,7 +284,7 @@ if ($CurrentVersion -eq 'latest') {
 Write-Information "Current version path: $dump_dir_current"
 
 if ($NewVersion -eq 'latest') {
-    $version_list = Get-ChildItem -Path $CONFIG.DUMP_DIR -Directory
+    $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory
     $dump_dir_new = $version_list[-1]
 
     $version_regex = '\d{4}\.\d{2}\.\d{2}\.\d{4}\.\d{4}'
@@ -296,7 +301,7 @@ if ($NewVersion -eq 'latest') {
         throw "Couldn't parse latest version number"
     }
 } else {
-    $dump_dir_new = "{0}/{1}" -f $CONFIG.DUMP_DIR, $NewVersion
+    $dump_dir_new = "{0}/{1}" -f $CONFIG.PATHS.DUMP_DIR, $NewVersion
     if (-not $(Test-Path -Path $dump_dir_new)) {
         throw "Version $NewVersion was not found in dump folder."
     }
@@ -345,7 +350,7 @@ foreach ($new_exh_file in $new_exh_list) {
     $current_exh_path = $new_exh_file.FullName.Replace($NewVersion, $CurrentVersion)
     $new_exh_path     = $new_exh_file.FullName
     $game_path        = "{0}/{1}" -f $sub_path, $file_name
-    $strings_dir_path = "{0}/{1}/{2}" -f $CONFIG.STRINGS_DIR, $sub_path, $file_name
+    $strings_dir_path = "{0}/{1}/{2}" -f $CONFIG.PATHS.STRINGS_DIR, $sub_path, $file_name
 
     $log_prefix = "{0}:" -f $game_path
 
@@ -546,7 +551,7 @@ foreach ($new_exh_file in $new_exh_list) {
             if ($table_name -in $split_files) {
                 $game_path        = "{0}/{1}/{2}" -f $sub_path, $file_name, $table_name
                 $log_prefix_lang  = "{0}: ({1})" -f $game_path, $lang.ToUpper()
-                $strings_dir_path = "{0}/{1}/{2}/{3}" -f $CONFIG.STRINGS_DIR, $sub_path, $file_name, $table_name
+                $strings_dir_path = "{0}/{1}/{2}/{3}" -f $CONFIG.PATHS.STRINGS_DIR, $sub_path, $file_name, $table_name
             }
 
             if (-not ($table_current.$table_name.Count -or $table_new.$table_name.Count)) {
@@ -600,7 +605,7 @@ foreach ($new_exh_file in $new_exh_list) {
 
                     # Remove cache file to force file conversion
                     $cache_file_path = "{0}/{1}/{2}/{3}.{4}.time" -f `
-                        $CONFIG.CACHE_DIR, $game_path, $file_name, $lang_un, (Get-StringsFileExtension)
+                        $CONFIG.PATHS.CACHE_DIR, $game_path, $file_name, $lang_un, (Get-StringsFileExtension)
                     if (Test-Path -Path $cache_file_path) {
                         Write-Verbose "$log_prefix_lang_un Removing cache at $cache_file_path"
                         Remove-Item -Path $cache_file_path -ErrorAction Ignore
