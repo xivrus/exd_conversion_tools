@@ -157,11 +157,14 @@ function Import-Strings {
             $state = $STRING_STATE_APPROVED
         }
 
-        $null = $xliff_reader.ReadToFollowing('target')
-        if ($xliff_reader.GetAttribute('state') -eq 'translated') {
-            $state = $STRING_STATE_TRANSLATED
+        if ($xliff_reader.ReadToDescendant('target')) {
+            if ($xliff_reader.GetAttribute('state') -eq 'translated') {
+                $state = $STRING_STATE_TRANSLATED
+            }
+            $string = $xliff_reader.ReadElementContentAsString()
+        } else {
+            $string = [string]::Empty
         }
-        $string = $xliff_reader.ReadElementContentAsString()
 
         $table.Add(
             $id,
