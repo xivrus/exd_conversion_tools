@@ -171,6 +171,6 @@ $file_path_list = @(
     $meta_json_path
 ) + $include_textures_dir
 $modpack_path = './modpacks/XIVRus-{0}-{1:yyyy-MM-dd}.pmp' -f $meta_json.Version, $(Get-Date)
-Compress-Archive -Path $file_path_list -DestinationPath $modpack_path -CompressionLevel Optimal
+Compress-Archive -Path $file_path_list -DestinationPath $modpack_path -CompressionLevel Optimal -Force
 $modpack_path = $(Resolve-Path -Path $modpack_path).Path
 "Modpack exported to $modpack_path"
