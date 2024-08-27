@@ -100,6 +100,7 @@ switch ($BuildType) {
                 $version_numbers.Build++
             } else {
                 $version_numbers.Minor++
+				$version_numbers.Build = 0
             }
         }
 
