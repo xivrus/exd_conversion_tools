@@ -32,7 +32,7 @@ $ErrorActionPreference = $ErrorActionPreference_before
 
 $include_exds_dir      = Get-ChildItem -Path './output' -Filter 'exd' -Directory
 $include_textures_dir  = Get-ChildItem -Path './textures/root_mod_png_dds_tex/*' -Directory
-$include_raw_dir       = Get-ChildItem -Path './include_raw/*' -Directory
+$include_raw_dir       = Get-ChildItem -Path './include_raw/*'
 $default_mod_json_path = './meta/default_mod.json'
 $meta_json_path        = './meta/meta.json'
 
@@ -40,12 +40,17 @@ $meta_json_path        = './meta/meta.json'
 $files_redirections = [PSCustomObject]@{}
 
 # Grab raw includes
-$include_raw_files = Get-ChildItem -Path $include_raw_dir -File -Recurse
-foreach ($file in $include_raw_files) {
-    $game_path = $file.FullName -creplace "^.*$($include_raw_dir.Parent.Name)/"
-    $real_path = $game_path -creplace '/', '\'
-    $files_redirections | Add-Member -MemberType NoteProperty -Name $game_path -Value $real_path
-}
+#   Not generating paths for them anymore, and instead contents of 'include_raw'
+#   will be included as is.
+#   * Raw includes are fonts and other possible meta files.
+#   * It's up to you to organize them.
+
+# $include_raw_files = Get-ChildItem -Path $include_raw_dir -File -Recurse
+# foreach ($file in $include_raw_files) {
+#     $game_path = $file.FullName -creplace "^.*$($include_raw_dir.Parent.Name)/"
+#     $real_path = $game_path -creplace '/', '\'
+#     $files_redirections | Add-Member -MemberType NoteProperty -Name $game_path -Value $real_path
+# }
 
 # Grab modded textures
 $include_textures_files = Get-ChildItem -Path $include_textures_dir -File -Recurse
@@ -166,10 +171,9 @@ $meta_json | ConvertTo-Json | Out-File $meta_json_path
 $null = New-Item -Path './modpacks' -ItemType Directory -ErrorAction SilentlyContinue
 $file_path_list = @(
     $include_exds_dir,
-    $include_raw_dir,
     $default_mod_json_path,
     $meta_json_path
-) + $include_textures_dir
+) + $include_raw_dir + $include_textures_dir
 $modpack_path = './modpacks/XIVRus-{0}-{1:yyyy-MM-dd}.pmp' -f $meta_json.Version, $(Get-Date)
 Compress-Archive -Path $file_path_list -DestinationPath $modpack_path -CompressionLevel Optimal -Force
 $modpack_path = $(Resolve-Path -Path $modpack_path).Path
