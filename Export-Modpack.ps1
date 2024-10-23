@@ -135,6 +135,10 @@ $meta_json.Version = $new_version
 
 # Add version to Lobby file and convert it
 
+Set-Location -Path $CONFIG.PATHS.STRINGS_DIR
+Invoke-Expression "git checkout ."
+Set-Location -Path ".."
+
 $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory
 $dump_ver_dir = $version_list[-1]
 $output_dir   = Get-Item -Path $CONFIG.PATHS.OUTPUT_DIR
