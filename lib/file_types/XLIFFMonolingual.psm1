@@ -114,10 +114,10 @@ function Export-Strings {
 
         $xliff_writer.WriteStartElement('trans-unit')
         $xliff_writer.WriteAttributeString('id', $index)
+        $xliff_writer.WriteAttributeString('xml', 'space', $null, 'preserve')
         if ($approved) {
             $xliff_writer.WriteAttributeString('approved', $approved)
         }
-        $xliff_writer.WriteAttributeString('xml', 'space', $null, 'preserve')
 
         $xliff_writer.WriteStartElement('source')
         $xliff_writer.WriteString($index)
