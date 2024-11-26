@@ -74,6 +74,29 @@ function Compare-Files {
     }
 }
 
+function Join-WeblateUrl {
+    param (
+        [Parameter()]
+        [string]
+        $BaseUrl = $WEBLATE.URI,
+        [Parameter()]
+        [string]
+        $ProjectSlug = $WEBLATE.PROJECT_SLUG,
+        [Parameter(Mandatory)]
+        [string]
+        $ComponentGamePath,
+        [Parameter(Mandatory)]
+        [string]
+        $Language,
+        [Parameter(Mandatory)]
+        [int]
+        $StringId
+    )
+
+    $ComponentSlug = $ComponentGamePath.ToLower() -creplace '^exd/','' -creplace '/','-'
+    return "https://{0}/translate/{1}/{2}/{3}/?q=context%3Ar`"%2F%2F%2F{4}%24`"" -f $BaseUrl, $ProjectSlug, $ComponentSlug, $Language, $StringId
+}
+
 function Update-StringsOfficial {
     param (
         [Parameter(Mandatory)]
@@ -104,6 +127,7 @@ function Update-StringsOfficial {
             $changelog.Add([pscustomobject]@{
                 File  = $FileName
                 Index = $index
+                Url   = ''
                 Old   = $TableCurrent[$index].String
                 New   = '[Removed]'
             })
@@ -131,6 +155,7 @@ function Update-StringsOfficial {
             $changelog.Add([pscustomobject]@{
                 File  = $FileName
                 Index = $index
+                Url   = Join-WeblateUrl -ComponentGamePath $game_path -Language $lang -StringId $index
                 Old   = '[N/A]'
                 New   = $new_string
             })
@@ -147,6 +172,7 @@ function Update-StringsOfficial {
         $changelog.Add([pscustomobject]@{
             File  = $FileName
             Index = $index
+            Url   = Join-WeblateUrl -ComponentGamePath $game_path -Language $lang -StringId $index
             Old   = $TableCurrent[$index].String
             New   = $new_string
         })
@@ -187,10 +213,12 @@ function Update-StringsUnofficial {
         # New string
         if ($change.Old -eq '[N/A]') {
             $changelog.Add([pscustomobject]@{
-                File  = $FileName
-                Index = $index
-                Old   = '[N/A]'
-                New   = ''
+                File              = $FileName
+                Index             = $index
+                Url               = Join-WeblateUrl -ComponentGamePath $game_path -Language $lang_un -StringId $index
+                'Old Source'      = $change.Old
+                'New Source'      = $change.New
+                'Old Translation' = '[N/A]'
             })
 
             # Remove 'if' statement if your translation tool requires target string to exist
@@ -207,10 +235,12 @@ function Update-StringsUnofficial {
         # Removed string
         if ($change.New -eq '[Removed]') {
             $changelog.Add([pscustomobject]@{
-                File  = $FileName
-                Index = $index
-                Old   = $TableCurrent[$index].String
-                New   = '[Removed]'
+                File              = $FileName
+                Index             = $index
+                Url               = ''
+                'Old Source'      = $change.Old
+                'New Source'      = $change.New
+                'Old Translation' = $TableCurrent[$index].String
             })
 
             $null = $TableCurrent.Remove($index)
@@ -220,10 +250,12 @@ function Update-StringsUnofficial {
         # Changed translated string
         if ($TableCurrent.ContainsKey($index) -and $TableCurrent[$index].String) {
             $changelog.Add([pscustomobject]@{
-                File  = $FileName
-                Index = $index
-                Old   = $TableCurrent[$index].String
-                New   = $new_string
+                File              = $FileName
+                Index             = $index
+                Url               = Join-WeblateUrl -ComponentGamePath $game_path -Language $lang_un -StringId $index
+                'Old Source'      = $change.Old
+                'New Source'      = $change.New
+                'Old Translation' = $TableCurrent[$index].String
             })
 
             $TableCurrent[$index].String = $new_string
@@ -246,6 +278,7 @@ try {
     Import-Module -Name "./lib/file_types/$FileType.psm1"
     $CONFIG           = Import-PowerShellDataFile -Path "./config/config.psd1"
     $CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
+    $WEBLATE          = Import-PowerShellDataFile -Path "./config/weblate.psd1"
     foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
         try {
             $CONFIG.PATHS.$path_name = (Resolve-Path -Path $CONFIG.PATHS.$path_name).Path
