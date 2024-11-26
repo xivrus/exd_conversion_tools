@@ -257,13 +257,13 @@
             "createTemporaryIntegratedConsole": true
         },
         {
-            "name": "Update-GameData (6.58->7.0, DryRun)",
+            "name": "Update-GameData (7.1->7.11, DryRun)",
             "type": "PowerShell",
             "request": "launch",
             "script": "./Update-GameData.ps1",
             "args": [
-                "-CurrentVersion 2024.03.27.0000.0000",
-                "-NewVersion 2024.06.18.0000.0000",
+                "-CurrentVersion 2024.11.06.0000.0000",
+                "-NewVersion 2024.11.20.0000.0000",
                 "-FileType XLIFFMonolingual",
                 "-DryRun"
             ],
