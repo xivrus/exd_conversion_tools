@@ -193,11 +193,13 @@ function Update-StringsUnofficial {
                 New   = ''
             })
 
-            # Uncomment if your translation tool requires the target string to exist
-            # $TableCurrent.Add($index, [pscustomobject]@{
-            #     String = $change.New
-            #     State  = $STRING_STATE_NOT_TRANSLATED
-            # })
+            # Remove 'if' statement if your translation tool requires target string to exist
+            if ($AddStringIDs) {
+                $TableCurrent.Add($index, [pscustomobject]@{
+                    String = $new_string
+                    State  = $STRING_STATE_NOT_TRANSLATED
+                })
+            }
 
             continue
         }
