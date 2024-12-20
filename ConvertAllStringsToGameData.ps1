@@ -51,7 +51,7 @@ foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
 $CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
 
 $ErrorActionPreference = $ErrorActionPreference_before
-# End of importing stuff
+# Finish importing stuff
 
 if ($Version -eq 'latest') {
     $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory

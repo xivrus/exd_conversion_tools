@@ -27,7 +27,7 @@ foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
 }
 
 $ErrorActionPreference = $ErrorActionPreference_before
-# End of importing stuff
+# Finish importing stuff
 
 
 $include_exds_dir      = Get-ChildItem -Path './output' -Filter 'exd' -Directory

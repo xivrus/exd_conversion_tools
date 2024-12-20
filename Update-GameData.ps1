@@ -296,7 +296,7 @@ catch {
 }
 
 $ErrorActionPreference = $ErrorActionPreference_before
-# End of importing stuff
+# Finish importing stuff
 
 $InformationPreference = 'Continue'
 if ($CONFIG.VERBOSE) {

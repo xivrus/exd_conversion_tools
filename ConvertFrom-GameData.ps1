@@ -71,7 +71,7 @@ if ($FileType -ne 'Memory') {
 $CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
 
 $ErrorActionPreference = $ErrorActionPreference_before
-# End of importing stuff
+# Finish importing stuff
 
 
 # MAIN START

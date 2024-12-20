@@ -49,7 +49,7 @@ foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
 }
 
 $ErrorActionPreference = $ErrorActionPreference_before
-# End of importing stuff
+# Finish importing stuff
 
 
 if ($Version -eq 'latest') {
