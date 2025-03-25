@@ -10,6 +10,7 @@ enum Lang_CodeValue {
     chs  = 5
     cht  = 6
     ko   = 7
+    unknown = 8  # Appeared in 7.2. Exact language and its code are currently unknown.
 }
 
 [Flags()] enum LanguageCodes {
@@ -21,6 +22,7 @@ enum Lang_CodeValue {
     chs  = 32
     cht  = 64
     ko   = 128
+    unknown = 256
 }
 
 class EXHF {
