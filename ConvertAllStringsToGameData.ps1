@@ -51,6 +51,9 @@ foreach ($path_name in [string[]] $CONFIG.PATHS.Keys) {
 $CONVERSION_LISTS = Import-PowerShellDataFile -Path "./config/conversion_lists.psd1"
 
 $ErrorActionPreference = $ErrorActionPreference_before
+
+$InformationPreference_before = $InformationPreference
+$InformationPreference = 'Continue'
 # Finish importing stuff
 
 if ($Version -eq 'latest') {
@@ -63,13 +66,13 @@ if ($Version -eq 'latest') {
     }
     $dump_ver_dir = Get-Item -Path $dump_ver_path
 }
-Write-Information "Using version: $dump_ver_dir" -InformationAction Continue
+Write-Information "Using version: $dump_ver_dir"
 
 $search_query = "{0}/*{1}.{2}" -f $CONFIG.PATHS.STRINGS_DIR, $SourceLanguage, (Get-StringsFileExtension)
-"Getting all {0} strings files at {1}" -f $SourceLanguage.ToUpper(), $CONFIG.PATHS.STRINGS_DIR
+Write-Information ("Getting all {0} strings files at {1}" -f $SourceLanguage.ToUpper(), $CONFIG.PATHS.STRINGS_DIR)
 Write-Verbose "Search query: $search_query"
 $input_strings_file_list = Get-ChildItem -Path $search_query -Recurse -File
-"Done."
+Write-Information "Done."
 
 # Make a normal array of all files that need to be combined
 $files_to_combine = foreach ($split_file in $CONVERSION_LISTS.SPLIT_FILES.GetEnumerator()) {
@@ -269,3 +272,6 @@ foreach ($input_strings_file in $input_strings_file_list) {
         Remove-Item -Path $source_strings_file
     }
 }
+
+$InformationPreference = $InformationPreference_before
+
