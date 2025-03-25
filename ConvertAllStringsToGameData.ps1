@@ -54,10 +54,10 @@ $ErrorActionPreference = $ErrorActionPreference_before
 # Finish importing stuff
 
 if ($Version -eq 'latest') {
-    $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory
+    $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_EXTRACTED_DIR -Directory
     $dump_ver_dir = $version_list[-1]
 } else {
-    $dump_ver_path = "{0}/{1}" -f $CONFIG.PATHS.DUMP_DIR, $Version
+    $dump_ver_path = "{0}/{1}" -f $CONFIG.PATHS.DUMP_EXTRACTED_DIR, $Version
     if (-not $(Test-Path -Path $dump_ver_path)) {
         throw "Version $Version was not found in dump folder."
     }

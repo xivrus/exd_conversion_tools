@@ -311,7 +311,7 @@ if ($CurrentVersion -eq 'latest') {
     Write-Error "Current version can't be 'latest'"
     return 2
 } else {
-    $dump_dir_current = "{0}/{1}" -f $CONFIG.PATHS.DUMP_DIR, $CurrentVersion
+    $dump_dir_current = "{0}/{1}" -f $CONFIG.PATHS.DUMP_EXTRACTED_DIR, $CurrentVersion
     if (-not $(Test-Path -Path $dump_dir_current)) {
         throw "Version $CurrentVersion was not found in dump folder."
     }
@@ -319,7 +319,7 @@ if ($CurrentVersion -eq 'latest') {
 Write-Information "Current version path: $dump_dir_current"
 
 if ($NewVersion -eq 'latest') {
-    $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory
+    $version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_EXTRACTED_DIR -Directory
     $dump_dir_new = $version_list[-1]
 
     $version_regex = '\d{4}\.\d{2}\.\d{2}\.\d{4}\.\d{4}'
@@ -336,7 +336,7 @@ if ($NewVersion -eq 'latest') {
         throw "Couldn't parse latest version number"
     }
 } else {
-    $dump_dir_new = "{0}/{1}" -f $CONFIG.PATHS.DUMP_DIR, $NewVersion
+    $dump_dir_new = "{0}/{1}" -f $CONFIG.PATHS.DUMP_EXTRACTED_DIR, $NewVersion
     if (-not $(Test-Path -Path $dump_dir_new)) {
         throw "Version $NewVersion was not found in dump folder."
     }

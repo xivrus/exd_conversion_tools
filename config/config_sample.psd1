@@ -14,7 +14,7 @@
         #         - 0a0000.win32.index2
         #     - ffxivgame.ver
         # This path is used by dumping script in read-only mode.
-        GAME_FILES_DIR = ''
+        DUMP_EXTRACTED_DIR = './dump/extracted'
 
         # Full path to the folder where the dumps would live.
         # Note that internal versioning of the game is not the same
@@ -22,7 +22,7 @@
         # such as 6.58, 7.0, etc.
         # Also note that this folder is also used by non-dumping
         # scripts, but in read-only mode.
-        DUMP_DIR = './dump'
+        DUMP_RAW_DIR = './dump/raw'
 
         # Full path to the folder where the strings files should be saved.
         STRINGS_DIR = './strings'
