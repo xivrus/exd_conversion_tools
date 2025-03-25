@@ -96,17 +96,19 @@ $table_target = Import-Strings -Path $StringsPath
 $table_source = Import-Strings -Path $StringsSourcePath
 $empty_string = $COLUMN_SEPARATOR * $($exh.GetStringDatasetOffsets().Count - 1)
 
-# Whenever error flag is set we stop writing strings into EXD
+# If there's an error in a string, add its index (aka line number)
+# to the list and then export this list to the file.
+# Also if this list is not empty, stop writing strings into EXD
 # but continue going through the strings to catch and report more
 # potential errors.
-$error_flag = $false
+$error_lines_list = [System.Collections.Generic.List[int]]::new()
+
 foreach ($page_number in [int[]] $exh.PageTable.Keys) {
     $exd_source_path = $exh.GetEXDPath($page_number, $OutputLanguage)
     $exd_target_path = "{0}/{1}" -f $Destination, (Split-Path $exd_source_path -Leaf)
 
     if (-not $Overwrite -and $(Test-Path -Path $exd_target_path)) {
         Write-Warning "EXD already exists - $exd_target_path"
-        $error_flag = $true
         break
     }
 
@@ -150,16 +152,16 @@ foreach ($page_number in [int[]] $exh.PageTable.Keys) {
         }
         catch {
             Write-Error "Syntax error at line $index - $StringsPath"
-            $error_flag = $true
+            $error_lines_list.Add($index)
         }
 
         $amount_of_strings = $result_bytes.Where({ $_ -eq 0x00 }).Count
         if ($amount_of_strings -ne $exh.GetStringDatasetOffsets().Count) {
             Write-Error "Wrong amount of columns at line $index - $StringsPath"
-            $error_flag = $true
+            $error_lines_list.Add($index)
         }
 
-        if (-not $error_flag) {
+        if (-not $error_lines_list) {
             $row.Value.SetStringBytes($result_bytes)
         }
     }
@@ -168,7 +170,7 @@ foreach ($page_number in [int[]] $exh.PageTable.Keys) {
         Write-Verbose "No changes in page $page_number"
     }
 
-    if (-not $error_flag -and $page_changed) {
+    if (-not $error_lines_list -and $page_changed) {
         $_parent_target_folder = Split-Path -Path $exd_target_path -Parent
         $null = New-Item -Path $_parent_target_folder -ItemType Directory -ErrorAction Ignore
 
@@ -183,8 +185,9 @@ foreach ($page_number in [int[]] $exh.PageTable.Keys) {
     }
 }
 
-if ($error_flag) {
+if ($error_lines_list) {
     Write-Warning "Not converted - $StringsPath"
+    $error_lines_list > ./error_lines_list
     return 1
 } else {
     return 0

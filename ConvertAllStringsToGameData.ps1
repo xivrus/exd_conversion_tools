@@ -84,6 +84,14 @@ $files_to_combine = foreach ($split_file in $CONVERSION_LISTS.SPLIT_FILES.GetEnu
 # This prevents the parent file to be combined multiple times.
 $files_combined = @{}
 
+# Collection of errors per file in the form of:
+#   <file_name>=<line1>,<line2>,...
+#   Lobby=12,45,...
+# Will be exported in the file.
+$errors = ''
+# Where to expect the error data from ConvertTo-GameData
+$error_lines_list_path = './error_lines_list'
+
 foreach ($input_strings_file in $input_strings_file_list) {
     # Set up paths
     $file_name = $input_strings_file.Directory.BaseName
@@ -260,6 +268,10 @@ foreach ($input_strings_file in $input_strings_file_list) {
         $null = New-Item -Path (Split-Path -Path $cache_file_path -Parent) -ItemType Directory -ErrorAction Ignore
         $null = New-Item -Path $cache_file_path -ItemType File -ErrorAction Ignore
         Set-Content -Value $last_write_time -Path $cache_file_path
+    } elseif (Test-Path -Path $error_lines_list_path) {
+        $errors_lines_list = Get-Content -Path $error_lines_list_path
+        $errors += "{0}={1}" -f $file_name, $errors_lines_list -join ','
+        Remove-Item -Path $error_lines_list_path
     }
 
     if ($files_combined.$file_name -and (Test-Path -Path $input_strings_file)) {
@@ -275,3 +287,10 @@ foreach ($input_strings_file in $input_strings_file_list) {
 
 $InformationPreference = $InformationPreference_before
 
+if ($errors) {
+    $errors > ./errors
+    return 1
+} else {
+    Remove-Item -Path './errors' -ErrorAction Ignore
+    return 0
+}
