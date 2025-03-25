@@ -7,7 +7,10 @@ param (
     $BuildType = 'test',
     [Parameter()]
     [switch]
-    $IsHotfix = $false
+    $IsHotfix = $false,
+    [Parameter()]
+    [string]
+    $Commit
 )
 
 # Start importing stuff
@@ -83,7 +86,7 @@ $meta_json = Get-Content $meta_json_path -Raw -Encoding utf8 | ConvertFrom-Json
 $version_json = $meta_json.Version
 $is_testing = $false
 if ($version_json -match '-test') {
-    $version_json = $version_json -creplace '-test', '.'
+    $version_json = $version_json -creplace '-test', '.' -creplace '-[^-]+$',''
     $is_testing = $true
 }
 $version = [version]::new( $version_json )
@@ -109,9 +112,16 @@ switch ($BuildType) {
             }
         }
 
-        $new_version = "{0}.{1}.{2}-test{3}" -f `
-            $version_numbers.Major, $version_numbers.Minor,
-            $version_numbers.Build, $version_numbers.Revision
+        if ($Commit) {
+            $new_version = "{0}.{1}.{2}-test{3}-{4}" -f `
+                $version_numbers.Major, $version_numbers.Minor,
+                $version_numbers.Build, $version_numbers.Revision,
+                $Commit
+        } else {
+            $new_version = "{0}.{1}.{2}-test{3}" -f `
+                $version_numbers.Major, $version_numbers.Minor,
+                $version_numbers.Build, $version_numbers.Revision
+        }
         break
     }
     'release' {
@@ -139,7 +149,7 @@ Set-Location -Path $CONFIG.PATHS.STRINGS_DIR
 Invoke-Expression "git checkout ."
 Set-Location -Path ".."
 
-$version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_DIR -Directory
+$version_list = Get-ChildItem -Path $CONFIG.PATHS.DUMP_EXTRACTED_DIR -Directory
 $dump_ver_dir = $version_list[-1]
 $output_dir   = Get-Item -Path $CONFIG.PATHS.OUTPUT_DIR
 
@@ -178,7 +188,11 @@ $file_path_list = @(
     $default_mod_json_path,
     $meta_json_path
 ) + $include_raw_dir + $include_textures_dir
-$modpack_path = './modpacks/XIVRus-{0}-{1:yyyy-MM-dd}.pmp' -f $meta_json.Version, $(Get-Date)
-Compress-Archive -Path $file_path_list -DestinationPath $modpack_path -CompressionLevel Optimal -Force
+$modpack_path = switch ($BuildType) {
+    'test'    { './modpacks/XIVRus-{0}-{1:yyyy-MM-dd-HH-mm}.pmp' -f $meta_json.Version, $(Get-Date) }
+    'release' { './modpacks/releases/XIVRus-{0}-{1:yyyy-MM-dd-HH-mm}.pmp' -f $meta_json.Version, $(Get-Date) }
+}
+Compress-Archive -Path $file_path_list -DestinationPath './tmp.pmp' -CompressionLevel Optimal -Force
+Move-Item -Path './tmp.pmp' -Destination $modpack_path
 $modpack_path = $(Resolve-Path -Path $modpack_path).Path
 "Modpack exported to $modpack_path"
