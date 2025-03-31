@@ -10,6 +10,8 @@
 
 # This script was designed specifically for Russian language with XLIFF file format.
 
+# UPD 7.2: Now it happens with JournalCategory and JournalGenre.
+
 [CmdletBinding()]
 param (
 	[Parameter(Mandatory)]
