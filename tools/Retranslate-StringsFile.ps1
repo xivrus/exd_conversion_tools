@@ -31,7 +31,7 @@ param (
 	$Destination
 )
 
-Import-Module -Name "./lib/file_types/XLIFFMonolingual.psm1" -ErrorAction Stop
+Import-Module -Name "../lib/file_types/XLIFFMonolingual.psm1" -ErrorAction Stop
 
 $en_old_table = Import-Strings -Path $OldEnStringsPath
 $ru_old_table = Import-Strings -Path $OldRuStringsPath
