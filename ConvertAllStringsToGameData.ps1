@@ -88,7 +88,7 @@ $files_combined = @{}
 #   <file_name>=<line1>,<line2>,...
 #   Lobby=12,45,...
 # Will be exported in the file.
-$errors = ''
+$errors = [System.Collections.Generic.List[string]]::new()
 # Where to expect the error data from ConvertTo-GameData
 $error_lines_list_path = './error_lines_list'
 
@@ -270,7 +270,8 @@ foreach ($input_strings_file in $input_strings_file_list) {
         Set-Content -Value $last_write_time -Path $cache_file_path
     } elseif (Test-Path -Path $error_lines_list_path) {
         $errors_lines_list = Get-Content -Path $error_lines_list_path
-        $errors += "{0}={1}" -f $file_name, $errors_lines_list -join ','
+        $error_string = "{0}: {1}" -f $file_name, ($errors_lines_list -join ', ')
+        $errors.Add($error_string)
         Remove-Item -Path $error_lines_list_path
     }
 
@@ -288,7 +289,7 @@ foreach ($input_strings_file in $input_strings_file_list) {
 $InformationPreference = $InformationPreference_before
 
 if ($errors) {
-    $errors > ./errors
+    $errors -join "`n" > ./errors
     return 1
 } else {
     Remove-Item -Path './errors' -ErrorAction Ignore
