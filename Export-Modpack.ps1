@@ -38,9 +38,13 @@ $include_textures_dir  = Get-ChildItem -Path './textures/root_mod_png_dds_tex/*'
 $include_raw_dir       = Get-ChildItem -Path './include_raw/*'
 $default_mod_json_path = './meta/default_mod.json'
 $meta_json_path        = './meta/meta.json'
+$settings_json_path    = './include_raw/group_002_settings.json'
 
 # Construct default_mod.json
 $files_redirections = [PSCustomObject]@{}
+
+# This will be used to exclude toggleable files from default_mod.json
+$settings_json = Get-Content -Path $settings_json_path
 
 # Grab raw includes
 #   Not generating paths for them anymore, and instead contents of 'include_raw'
@@ -68,6 +72,10 @@ $include_exds_files = Get-ChildItem -Path $include_exds_dir -File -Recurse
 foreach ($file in $include_exds_files) {
     $game_path = $file.FullName -replace "^.*$($include_exds_dir.Parent.Name)/"
     $real_path = $game_path -replace '/', '\'
+
+    if ($settings_json | Select-String -Pattern $game_path -CaseSensitive -SimpleMatch -Quiet) {
+        continue
+    }
     $files_redirections | Add-Member -MemberType NoteProperty -Name $game_path -Value $real_path
 }
 
